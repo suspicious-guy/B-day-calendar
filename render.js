@@ -144,6 +144,34 @@ function saveAccount(){
 }
 
 /*Chats*/
+let chatSummaries = [];   // из ChatClient.fetchChats()
+let activeChatData = null; // из ChatClient.fetchChat(id) / WS history
+
+async function loadChatsList(){
+  chatSummaries = await ChatClient.fetchChats();
+}
+
+async function openChat(chatId){
+  state.activeChatId = chatId;
+  ChatClient.joinChat(chatId);
+  activeChatData = await ChatClient.fetchChat(chatId);
+  renderContent();
+}
+
+// получаем сообщения в реальном времени
+ChatClient.onMessage((chatId, message, history) => {
+  if (chatId !== state.activeChatId) {
+    // можно показать бейдж "новое сообщение" на чате в списке
+    return;
+  }
+  if (history) {
+    activeChatData.messages = history;
+  } else if (message) {
+    activeChatData.messages.push(message);
+  }
+  renderContent(true); // перерисовать без потери фокуса
+});
+
 function lastMessage(chat){
   if(!chat.messages.length) return 'Нет сообщений';
   const m = chat.messages[chat.messages.length-1];
@@ -151,9 +179,9 @@ function lastMessage(chat){
 }
 
 function renderChats(){
-  const sorted = [...state.chats].sort((a,b)=>{
-    const at = a.messages.length ? new Date(a.messages[a.messages.length-1].time) : 0;
-    const bt = b.messages.length ? new Date(b.messages[b.messages.length-1].time) : 0;
+  const sorted = [...chatSummaries].sort((a,b)=>{
+    const at = a.lastMessage ? new Date(a.lastMessage.time) : 0;
+    const bt = b.lastMessage ? new Date(b.lastMessage.time) : 0;
     return bt - at;
   });
 
@@ -162,26 +190,25 @@ function renderChats(){
       <div class="chat-avatar" style="background:${c.color}">${c.type==='group' ? '👥' : initials(c.name)}</div>
       <div class="chat-meta">
         <div class="cname">${escapeHtml(c.name)} ${c.type==='group' ? '<span class="chat-tag">группа</span>' : ''}</div>
-        <div class="clast">${escapeHtml(lastMessage(c))}</div>
+        <div class="clast">${escapeHtml(lastMessagePreview(c))}</div>
       </div>
     </div>
   `).join('');
 
-  const activeChat = findChat(state.activeChatId);
   let threadHtml;
-  if(activeChat){
+  if(activeChatData && activeChatData.id===state.activeChatId){
     threadHtml = `
       <div class="thread-head">
-        <div class="chat-avatar" style="background:${activeChat.color};width:36px;height:36px;font-size:14px;">${activeChat.type==='group'?'👥':initials(activeChat.name)}</div>
+        <div class="chat-avatar" style="background:${activeChatData.color};width:36px;height:36px;font-size:14px;">${activeChatData.type==='group'?'👥':initials(activeChatData.name)}</div>
         <div>
-          <div class="thn">${escapeHtml(activeChat.name)}</div>
-          <div class="ths">${activeChat.type==='group' ? 'групповой чат' : 'личный чат'}</div>
+          <div class="thn">${escapeHtml(activeChatData.name)}</div>
+          <div class="ths">${activeChatData.type==='group' ? 'групповой чат' : 'личный чат'}</div>
         </div>
       </div>
       <div class="thread-body" id="threadBody">
-        ${activeChat.messages.map(m=>`
-          <div class="msg ${m.mine?'mine':'theirs'}">
-            ${!m.mine ? `<span class="ma">${escapeHtml(m.author)}</span>` : ''}
+        ${activeChatData.messages.map(m=>`
+          <div class="msg ${m.authorLogin===state.currentLogin?'mine':'theirs'}">
+            ${m.authorLogin!==state.currentLogin ? `<span class="ma">${escapeHtml(m.authorName)}</span>` : ''}
             ${escapeHtml(m.text)}
             <span class="mt">${formatMsgTime(m.time)}</span>
           </div>
@@ -221,26 +248,28 @@ function sendMessage(){
   const inp = document.getElementById('msgInput');
   const val = inp.value.trim();
   if(!val) return;
-  const chat = findChat(state.activeChatId);
-  if(!chat) return;
-  chat.messages.push({author:'Вы', mine:true, text:val, time:new Date().toISOString()});
-  persist();
-  renderContent();
+  ChatClient.sendMessage(
+    state.activeChatId,
+    val,
+    state.currentLogin,
+    state.user.name
+  );
+  inp.value = '';
+  // сообщение подставится само через ChatClient.onMessage,
+  // когда сервер разошлёт его всем участникам (включая вас)
 }
 
-function openOrCreateChatForFriend(friendId){
+async function openOrCreateChatForFriend(friendId){
   const friend = findFriend(friendId);
   if(!friend) return;
   if(!friend.chatId){
     const id = 'chat-' + friend.id;
-    state.chats.push({id, type:'direct', name:friend.name, color:friend.color, messages:[]});
+    await ChatClient.createChat({ id, type:'direct', name: friend.name, color: friend.color });
     friend.chatId = id;
+    persist(); // остальное состояние (friends) всё ещё можно держать как есть
   }
-  state.activeChatId = friend.chatId;
   state.activeTab = 'chats';
-  persist();
-  renderTabs();
-  renderContent();
+  openChat(friend.chatId);
 }
 
 /*Friends*/

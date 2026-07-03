@@ -148,6 +148,7 @@ async function enterApp(login){
   await persist();
   hideAuthOverlay();
   document.getElementById('app').style.display = 'flex';
+  await loadChatsList();
   render();
 }
 

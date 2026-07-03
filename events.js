@@ -47,10 +47,8 @@ document.getElementById('content').addEventListener('click', e=>{
   }
   else if(action==='save-account') saveAccount();
   else if(action==='open-chat'){
-    state.activeChatId = el.dataset.id;
-    persist();
-    renderContent();
-  }
+  openChat(el.dataset.id);
+}
   else if(action==='send-msg') sendMessage();
   else if(action==='toggle-subscribe'){
     const f = findFriend(el.dataset.id);
