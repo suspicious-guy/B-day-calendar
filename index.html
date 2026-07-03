@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дни рождения друзей</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">🎂</div>
+      <div>
+        <div class="name">Дни Рождения</div>
+        <div class="sub">трекер друзей</div>
+      </div>
+    </div>
+
+    <div class="today-card" id="todayCard"></div>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab-btn" data-tab="account"><span class="ico">👤</span>Аккаунт</button>
+      <button class="tab-btn" data-tab="chats"><span class="ico">💬</span>Чаты</button>
+      <button class="tab-btn" data-tab="friends"><span class="ico">🎈</span>Друзья</button>
+      <button class="tab-btn" data-tab="notifications"><span class="ico">🔔</span>Уведомления</button>
+    </nav>
+
+    <div class="sidebar-footer">Данные хранятся только в вашем браузере.</div>
+  </aside>
+
+  <main class="content" id="content"></main>
+</div>
+<script src="data.js"></script>
+<script src="render.js"></script>
+<script src="events.js"></script>
+</body>
+</html>
