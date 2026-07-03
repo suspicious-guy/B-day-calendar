@@ -4,31 +4,40 @@ const MONTHS = ['янв','фев','мар','апр','май','июн','июл','
 const MONTHS_FULL = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
+// data.js
+
 function seedState(){
   return {
-    activeTab: 'account', // По умолчанию открываем профиль
-    activeChatId: null,   // Нет активного чата
+    activeTab: 'account',
+    activeChatId: null,
     friendFilter: 'date',
     friendSearch: '',
+    searchQuery: '',        
+    friendSubTab: 'my', 
     user: {
       id: 'current-user',
-      name: '',           // Пустое имя
-      birthdate: '',      // Пустая дата
-      groups: []          // Нет групп
+      name: 'Алексей',           // ← имя пользователя
+      birthdate: '1995-06-15',   // ← дата рождения пользователя
+      groups: ['ТГУ 972501']     // ← группы пользователя
     },
-    groups: [ // Глобальный список всех групп в системе
+    groups: [                    // ← все группы в системе
+      {id: 'group-1', name: 'ТГУ 972501', members: ['current-user', 'f2', 'f3', 'f4']},
+      {id: 'group-2', name: 'Сборная по волейболу', members: ['f1', 'f5']}
+    ],
+    // 🔥 ВАЖНО: друзей больше нет в начальном состоянии!
+    friends: [],                 // ← ПУСТОЙ массив друзей
     
+    // Все пользователи системы (для поиска)
+    allUsers: [                  // ← добавляем всех пользователей
+      {id:'f1', name:'Никита Орлов', birthdate:'2002-07-05', groups:['Сборная по волейболу'], wishlist:['Кроссовки для зала','Спортивный термос'], color:'#E8734A'},
+      {id:'f2', name:'Иван Петров', birthdate:'2003-07-10', groups:['ТГУ 972501'], wishlist:['Наушники Sony','Книга «Атомные привычки»'], color:'#6E8F74'},
+      {id:'f3', name:'Ольга Смирнова', birthdate:'2003-08-02', groups:['ТГУ 972501'], wishlist:['Плед','Набор для рисования'], color:'#D9A441'},
+      {id:'f4', name:'Дмитрий Волков', birthdate:'2004-01-15', groups:['ТГУ 972501'], wishlist:['Механическая клавиатура'], color:'#4C6E8F'},
+      {id:'f5', name:'Мария Соколова', birthdate:'1998-12-25', groups:['Сборная по волейболу'], wishlist:['Форма для волейбола','Сертификат'], color:'#A35FA3'},
+      {id:'f6', name:'Екатерина Белова', birthdate:'2003-03-20', groups:['ТГУ 972501'], wishlist:['Настольная лампа'], color:'#3F8F82'}
     ],
-    friends: [
-      {id:'f1', name:'Никита Орлов', birthdate:'2002-07-05', groups:['Сборная по волейболу'], wishlist:['Кроссовки для зала','Спортивный термос'], subscribed:false, chatId:null, color:'#E8734A'},
-      {id:'f2', name:'Иван Петров', birthdate:'2003-07-10', groups:['Группа 972501, ТГУ'], wishlist:['Наушники Sony WH-1000XM5','Книга «Атомные привычки»'], subscribed:false, chatId:null, color:'#6E8F74'},
-      {id:'f3', name:'Ольга Смирнова', birthdate:'2003-08-02', groups:['Группа 972501, ТГУ'], wishlist:['Плед','Набор для рисования'], subscribed:false, chatId:null, color:'#D9A441'},
-      {id:'f4', name:'Дмитрий Волков', birthdate:'2004-01-15', groups:['Группа 972501, ТГУ'], wishlist:['Механическая клавиатура'], subscribed:false, chatId:null, color:'#4C6E8F'},
-      {id:'f5', name:'Мария Соколова', birthdate:'1998-12-25', groups:['Сборная по волейболу'], wishlist:['Форма для волейбола','Подарочный сертификат'], subscribed:false, chatId:null, color:'#A35FA3'},
-      {id:'f6', name:'Екатерина Белова', birthdate:'2003-03-20', groups:['Группа 972501, ТГУ'], wishlist:['Настольная лампа'], subscribed:false, chatId:null, color:'#3F8F82'}
-    ],
-    chats: [],            // Пустой список чатов
-    notifications: []     // Пустой список уведомлений
+    chats: [],
+    notifications: []
   };
 }
 
@@ -120,3 +129,50 @@ function escapeHtml(s){
 
 function findFriend(id){ return state.friends.find(f=>f.id===id); }
 function findChat(id){ return state.chats.find(c=>c.id===id); }
+
+function searchUsers(query) {
+  if (!query || query.length < 2) return [];
+  
+  const lowerQuery = query.toLowerCase();
+  
+  // Ищем среди всех пользователей (кроме себя)
+  return state.allUsers.filter(user => {
+    const nameMatch = user.name.toLowerCase().includes(lowerQuery);
+    const isNotMe = user.id !== state.user.id;
+    const isNotFriend = !state.friends.some(f => f.id === user.id);
+    
+    return nameMatch && isNotMe && isNotFriend;
+  });
+}
+
+// ---------- ДОБАВИТЬ В ДРУЗЬЯ ----------
+function addFriendById(friendId) {
+  const userToAdd = state.allUsers.find(u => u.id === friendId);
+  if (!userToAdd) return false;
+  
+  // Проверяем, не добавлен ли уже
+  if (state.friends.some(f => f.id === friendId)) return false;
+  
+  // Добавляем в друзья (с копированием данных)
+  state.friends.push({
+    ...userToAdd,
+    subscribed: false,
+    chatId: null
+  });
+  
+  persist();
+  return true;
+}
+
+function removeFriendById(friendId) {
+  const index = state.friends.findIndex(f => f.id === friendId);
+  if (index === -1) return false;
+  
+  state.friends.splice(index, 1);
+  persist();
+  return true;
+}
+
+function getAllUsersForSearch() {
+  return state.allUsers.filter(u => u.id !== state.user.id);
+}

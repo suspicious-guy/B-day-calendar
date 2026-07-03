@@ -361,84 +361,235 @@ function openOrCreateChatForFriend(friendId){
   renderContent();
 }
 
-/*Friends*/
 function renderFriends(){
-  let list = state.friends.filter(f => f.name.toLowerCase().includes(state.friendSearch.toLowerCase()));
-
-  if(state.friendFilter==='alpha'){
-    list = list.sort((a,b)=>a.name.localeCompare(b.name,'ru'));
-  } else {
-    list = list.sort((a,b)=>daysUntilBirthday(a.birthdate)-daysUntilBirthday(b.birthdate));
-  }
-
-  const cardsHtml = list.map(f=>{
-    const {num, mon} = formatBirthdayShort(f.birthdate);
-    const days = daysUntilBirthday(f.birthdate);
-    const hasChat = f.chatId && findChat(f.chatId);
-    const chatExists = !!hasChat;
+  // Проверяем, какая подвкладка активна
+  const subTab = state.friendSubTab || 'my'; // 'my' или 'search'
+  
+  // ---------- ВКЛАДКА "МОИ ДРУЗЬЯ" ----------
+  if (subTab === 'my') {
+    let friendsList = state.friends;
     
-    return `
-      <div class="friend-card">
-        <div class="fc-top">
-          <div class="date-block">
-            <div class="dnum">${num}</div>
-            <div class="dmon">${mon}</div>
+    // Фильтрация по поиску среди друзей
+    if (state.friendSearch) {
+      const searchLower = state.friendSearch.toLowerCase();
+      friendsList = friendsList.filter(f => 
+        f.name.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Сортировка
+    if (state.friendFilter === 'alpha') {
+      friendsList = friendsList.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+    } else {
+      friendsList = friendsList.sort((a, b) => 
+        daysUntilBirthday(a.birthdate) - daysUntilBirthday(b.birthdate)
+      );
+    }
+    
+    // Карточки друзей
+    const friendsHtml = friendsList.map(f => {
+      const {num, mon} = formatBirthdayShort(f.birthdate);
+      const days = daysUntilBirthday(f.birthdate);
+      const hasChat = f.chatId && findChat(f.chatId);
+      const chatExists = !!hasChat;
+      
+      return `
+        <div class="friend-card" data-id="${f.id}">
+          <div class="fc-top">
+            <div class="date-block">
+              <div class="dnum">${num}</div>
+              <div class="dmon">${mon}</div>
+            </div>
+            <div class="fc-info">
+              <div class="fname">${escapeHtml(f.name)}</div>
+              <div class="fcountdown">${countdownLabel(days)}</div>
+              <div class="fc-groups">${f.groups.map(g => `<span>${escapeHtml(g)}</span>`).join('')}</div>
+              ${chatExists ? '<div class="chat-indicator">💬 Обсуждение активно</div>' : ''}
+            </div>
           </div>
-          <div class="fc-info">
-            <div class="fname">${escapeHtml(f.name)}</div>
-            <div class="fcountdown">${countdownLabel(days)}</div>
-            <div class="fc-groups">${f.groups.map(g=>`<span>${escapeHtml(g)}</span>`).join('')}</div>
-            ${chatExists ? '<div class="chat-indicator">💬 Обсуждение активно</div>' : ''}
+          <details class="fc-wish">
+            <summary>Список подарков (${f.wishlist.length})</summary>
+            <ul>${f.wishlist.map(w => `<li>${escapeHtml(w)}</li>`).join('') || '<li>Пока пусто</li>'}</ul>
+          </details>
+          <div class="fc-actions">
+            <button class="btn btn-small ${f.subscribed ? 'btn-sage' : 'btn-ghost'}" 
+                    data-action="toggle-subscribe" data-id="${f.id}">
+              ${f.subscribed ? '✓ Подписаны' : 'Подписаться'}
+            </button>
+            <button class="btn btn-small btn-primary" 
+                    data-action="discuss-gift" data-id="${f.id}">
+              ${chatExists ? '💬 Перейти в чат' : 'Обсудить подарок'}
+            </button>
+            <button class="btn btn-small btn-danger" 
+                    data-action="remove-friend" data-id="${f.id}">
+              ✕ Удалить
+            </button>
           </div>
         </div>
-        <details class="fc-wish">
-          <summary>Список подарков (${f.wishlist.length})</summary>
-          <ul>${f.wishlist.map(w=>`<li>${escapeHtml(w)}</li>`).join('') || '<li>Пока пусто</li>'}</ul>
-        </details>
-        <div class="fc-actions">
-          <button class="btn btn-small ${f.subscribed?'btn-sage':'btn-ghost'}" data-action="toggle-subscribe" data-id="${f.id}">
-            ${f.subscribed ? '✓ Подписаны' : 'Подписаться'}
-          </button>
-          <button class="btn btn-small btn-primary" data-action="discuss-gift" data-id="${f.id}">
-            ${chatExists ? '💬 Перейти в чат' : 'Обсудить подарок'}
-          </button>
+      `;
+    }).join('');
+    
+    return `
+      <div class="page-head">
+        <div class="eyebrow">Круг друзей</div>
+        <h1 class="page-title">Друзья</h1>
+        <p class="page-desc">Управляйте списком друзей и находите новых.</p>
+      </div>
+      
+      <!-- ПЕРЕКЛЮЧАТЕЛЬ ВКЛАДОК -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn ${subTab === 'my' ? 'active' : ''}" 
+                data-action="switch-subtab" data-subtab="my">
+          📋 Мои друзья (${state.friends.length})
+        </button>
+        <button class="sub-tab-btn ${subTab === 'search' ? 'active' : ''}" 
+                data-action="switch-subtab" data-subtab="search">
+          🔍 Найти друзей
+        </button>
+      </div>
+      
+      <!-- ПОИСК СРЕДИ ДРУЗЕЙ -->
+      <div class="friends-toolbar">
+        <div class="search-box">
+          <span class="sico">🔍</span>
+          <input type="text" id="friendSearch" placeholder="Поиск по имени..." 
+                 value="${escapeHtml(state.friendSearch || '')}">
+        </div>
+        <div class="filter-toggle">
+          <button data-action="filter-alpha" class="${state.friendFilter === 'alpha' ? 'active' : ''}">По алфавиту</button>
+          <button data-action="filter-date" class="${state.friendFilter === 'date' ? 'active' : ''}">По дате рождения</button>
+        </div>
+      </div>
+      
+      <!-- СПИСОК ДРУЗЕЙ -->
+      <div class="friends-section">
+        <div class="friends-grid">
+          ${friendsHtml || '<div class="empty-state"><div class="ee">👤</div>У вас пока нет друзей. Перейдите на вкладку «Найти друзей».</div>'}
         </div>
       </div>
     `;
-  }).join('');
-
-  return `
-    <div class="page-head">
-      <div class="eyebrow">Круг друзей</div>
-      <h1 class="page-title">Друзья</h1>
-      <p class="page-desc">Даты рождения, вишлисты и статус подписки на напоминания.</p>
-    </div>
-    <div class="friends-toolbar">
-      <div class="search-box">
-        <span class="sico">🔍</span>
-        <input type="text" id="friendSearch" placeholder="Поиск по имени" value="${escapeHtml(state.friendSearch)}">
+  }
+  
+  // ---------- ВКЛАДКА "НАЙТИ ДРУЗЕЙ" ----------
+  else if (subTab === 'search') {
+    const searchQuery = state.searchQuery || '';
+    const searchResults = searchQuery.length >= 2 ? searchUsers(searchQuery) : [];
+    
+    // Результаты поиска
+    let resultsHtml = '';
+    if (searchQuery.length >= 2) {
+      if (searchResults.length > 0) {
+        resultsHtml = `
+          <div class="search-results">
+            <h3 class="search-title">🔍 Найдено пользователей: ${searchResults.length}</h3>
+            ${searchResults.map(u => `
+              <div class="search-result-item">
+                <div class="search-info">
+                  <div class="search-avatar">${u.name.charAt(0).toUpperCase()}</div>
+                  <div>
+                    <div class="search-name">${escapeHtml(u.name)}</div>
+                    <div class="search-details">
+                      <span class="search-birth">🎂 ${formatBirthdayFull(u.birthdate)}</span>
+                      <span class="search-groups">${u.groups.map(g => `<span>${escapeHtml(g)}</span>`).join('')}</span>
+                    </div>
+                    <div class="search-wishlist">🎁 ${u.wishlist.length > 0 ? u.wishlist.join(', ') : 'Нет желаемых подарков'}</div>
+                  </div>
+                </div>
+                <button class="btn btn-small btn-success" 
+                        data-action="add-friend" data-id="${u.id}">
+                  ➕ Добавить
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        resultsHtml = `
+          <div class="search-empty">
+            <div class="empty-icon">😕</div>
+            <p>Никого не найдено</p>
+            <span class="empty-hint">Попробуйте изменить запрос</span>
+          </div>
+        `;
+      }
+    } else {
+      resultsHtml = `
+        <div class="search-hint">
+          <div class="hint-icon">🔍</div>
+          <p>Введите имя (минимум 2 символа) и нажмите «Найти»</p>
+        </div>
+      `;
+    }
+    
+    return `
+      <div class="page-head">
+        <div class="eyebrow">Круг друзей</div>
+        <h1 class="page-title">Друзья</h1>
+        <p class="page-desc">Найдите пользователей и добавьте их в друзья.</p>
       </div>
-      <div class="filter-toggle">
-        <button data-action="filter-alpha" class="${state.friendFilter==='alpha'?'active':''}">По алфавиту</button>
-        <button data-action="filter-date" class="${state.friendFilter==='date'?'active':''}">По дате рождения</button>
+      
+      <!-- ПЕРЕКЛЮЧАТЕЛЬ ВКЛАДОК -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn ${subTab === 'my' ? 'active' : ''}" 
+                data-action="switch-subtab" data-subtab="my">
+          📋 Мои друзья (${state.friends.length})
+        </button>
+        <button class="sub-tab-btn ${subTab === 'search' ? 'active' : ''}" 
+                data-action="switch-subtab" data-subtab="search">
+          🔍 Найти друзей
+        </button>
       </div>
-    </div>
-    <div class="friends-grid">
-      ${cardsHtml || '<div class="empty-state"><div class="ee">🔍</div>Никого не нашлось</div>'}
-    </div>
-  `;
+      
+      <!-- ПОИСК -->
+      <div class="search-section">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Введите имя для поиска..." 
+                 value="${escapeHtml(state.searchQuery || '')}">
+          <button class="btn btn-primary" data-action="do-search">🔍 Найти</button>
+          <button class="btn btn-ghost" data-action="clear-search">✕ Очистить</button>
+        </div>
+      </div>
+      
+      <!-- РЕЗУЛЬТАТЫ -->
+      ${resultsHtml}
+    `;
+  }
 }
+
+// render.js (добавить в функцию wireFriends)
+
+// render.js
 
 function wireFriends(){
   const search = document.getElementById('friendSearch');
   if(search){
-    search.addEventListener('input', e=>{
-      state.friendSearch = e.target.value;
-      renderContent(true);
+    // Убираем старые обработчики (чтобы не было дублирования)
+    const newSearch = search.cloneNode(true);
+    search.parentNode.replaceChild(newSearch, search);
+    
+    newSearch.addEventListener('input', function(e) {
+      const query = e.target.value.trim();
+      state.friendSearch = query;
+      
+      // Перерисовываем только контент
+      const content = document.getElementById('content');
+      if (content) {
+        const cursorPos = this.selectionStart;
+        content.innerHTML = renderFriends();
+        
+        // Восстанавливаем фокус
+        const newSearchInput = document.getElementById('friendSearch');
+        if (newSearchInput) {
+          newSearchInput.focus();
+          newSearchInput.selectionStart = newSearchInput.selectionEnd = cursorPos;
+        }
+      }
     });
-    // restore focus & caret after re-render
-    search.focus();
-    search.selectionStart = search.selectionEnd = search.value.length;
+    
+    // Сразу вызываем поиск, если есть запрос
+    if (state.friendSearch && state.friendSearch.length >= 2) {
+      newSearch.dispatchEvent(new Event('input'));
+    }
   }
 }
 

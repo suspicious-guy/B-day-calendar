@@ -560,3 +560,360 @@ nav.tabs{display:flex;flex-direction:column;gap:8px;flex:1;}
 #groupSuggestions {
   max-height: 100px;
 }
+
+/* ----- ПОИСК ----- */
+.search-results {
+  margin: 16px 0 24px 0;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.search-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 12px 0;
+}
+
+.search-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.search-result-item:hover {
+  border-color: #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-name {
+  font-weight: 600;
+  color: #212529;
+  font-size: 15px;
+}
+
+.search-birth {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.search-groups {
+  display: flex;
+  gap: 4px;
+}
+
+.search-groups span {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: #e9ecef;
+  border-radius: 10px;
+  color: #495057;
+}
+
+.search-empty {
+  padding: 20px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* ----- КНОПКИ ДЛЯ ПОИСКА ----- */
+.btn-success {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+.btn-success:hover {
+  background: #218838;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+/* ----- СЧЁТЧИК ДРУЗЕЙ ----- */
+.friend-count {
+  font-size: 16px;
+  color: #6c757d;
+  font-weight: 400;
+}
+
+/* ----- РАЗДЕЛ СПИСКА ДРУЗЕЙ ----- */
+.friends-section {
+  margin-top: 8px;
+}
+
+.friends-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e9ecef;
+}
+/* styles.css (добавить в конец) */
+
+/* ----- ПЕРЕКЛЮЧАТЕЛЬ ПОДВКЛАДОК ----- */
+.sub-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0;
+}
+
+.sub-tab-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #6c757d;
+  transition: all 0.2s;
+}
+
+.sub-tab-btn:hover {
+  color: #495057;
+  background: #f8f9fa;
+}
+
+.sub-tab-btn.active {
+  color: #4A90D9;
+  border-bottom-color: #4A90D9;
+}
+
+.sub-tab-btn .badge {
+  background: #e9ecef;
+  color: #495057;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.sub-tab-btn.active .badge {
+  background: #4A90D9;
+  color: white;
+}
+
+/* ----- ПОЛЕ ПОИСКА С КНОПКОЙ ----- */
+.search-section {
+  margin: 16px 0 20px 0;
+}
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.2s;
+  min-width: 200px;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #4A90D9;
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+}
+
+.search-bar .btn {
+  padding: 10px 24px;
+  white-space: nowrap;
+}
+
+/* ----- РЕЗУЛЬТАТЫ ПОИСКА ----- */
+.search-results {
+  margin: 16px 0;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.search-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 12px 0;
+}
+
+.search-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.search-result-item:hover {
+  border-color: #dee2e6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.search-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.search-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #4A90D9;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.search-name {
+  font-weight: 600;
+  color: #212529;
+  font-size: 16px;
+}
+
+.search-details {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
+.search-groups {
+  display: flex;
+  gap: 4px;
+}
+
+.search-groups span {
+  font-size: 11px;
+  padding: 2px 10px;
+  background: #e9ecef;
+  border-radius: 10px;
+  color: #495057;
+}
+
+.search-wishlist {
+  font-size: 13px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+/* ----- ПУСТЫЕ СОСТОЯНИЯ ----- */
+.search-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+.search-empty .empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.search-empty p {
+  font-size: 16px;
+  margin: 0;
+}
+
+.search-empty .empty-hint {
+  font-size: 13px;
+  color: #adb5bd;
+}
+
+.search-hint {
+  text-align: center;
+  padding: 40px 20px;
+  color: #adb5bd;
+}
+
+.search-hint .hint-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.search-hint p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* ----- АДАПТИВНОСТЬ ----- */
+@media (max-width: 600px) {
+  .search-bar {
+    flex-wrap: wrap;
+  }
+  
+  .search-bar input {
+    min-width: 100%;
+  }
+  
+  .search-bar .btn {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .search-result-item {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .search-info {
+    flex-wrap: wrap;
+  }
+  
+  .sub-tab-btn {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
