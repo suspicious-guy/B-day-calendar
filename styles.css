@@ -1564,3 +1564,64 @@ nav.tabs{display:flex;flex-direction:column;gap:8px;flex:1;}
     font-size: 20px;
   }
 }
+
+/* Настройки уведомлений */
+.notification-settings {
+  margin-bottom: 24px;
+}
+
+.notification-settings h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 4px 0;
+}
+
+.notification-settings .settings-desc {
+  font-size: 13px;
+  color: #6c757d;
+  margin: 0 0 12px 0;
+}
+
+.settings-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.setting-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #495057;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.setting-checkbox:hover {
+  background: #e9ecef;
+}
+
+.setting-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #4A90D9;
+}
+
+.setting-checkbox:has(input:checked) {
+  background: #e3f0ff;
+  border-color: #4A90D9;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}

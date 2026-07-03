@@ -170,6 +170,33 @@ document.getElementById('content').addEventListener('click', function(e) {
     renderContent();
   }
   else if(action==='logout') logout();
+  else if (action === 'save-notification-settings') {
+    const checkboxes = document.querySelectorAll('.setting-checkbox input[type="checkbox"]');
+    const selectedDays = [];
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        selectedDays.push(Number(cb.dataset.day));
+      }
+    });
+    
+    if (selectedDays.length === 0) {
+      showToast('❌ Выберите хотя бы один период', 'error');
+      return;
+    }
+    
+    state.notificationSettings.daysBefore = selectedDays.sort((a,b)=>b-a);
+    persist();
+    
+    // Обновляем уведомления
+    refreshNotifications();
+    renderContent();
+    showToast('✅ Настройки сохранены!', 'success');
+  }
+  else if (action === 'refresh-notifications') {
+    refreshNotifications();
+    renderContent();
+    showToast('🔄 Уведомления обновлены', 'success');
+  }
 });
 
 function wireFriends() {

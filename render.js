@@ -613,11 +613,43 @@ function wireFriends(){
   }
 }
 
-/*Notifications*/
 function renderNotifications(){
+  const settings = state.notificationSettings || { daysBefore: [30, 14, 7, 3, 0] };
+  
+  // Генерируем уведомления на основе настроек
+  const notifs = [];
+  state.friends.filter(f => f.subscribed).forEach(f => {
+    const days = daysUntilBirthday(f.birthdate);
+    if (settings.daysBefore.includes(days)) {
+      const type = days === 0 ? 'today' : 'upcoming';
+      const text = days === 0
+        ? `🎉 Сегодня день рождения у ${f.name}!`
+        : `⏰ Через ${days} ${pluralDays(days)} день рождения у ${f.name}`;
+      
+      notifs.push({
+        id: 'notif-' + Date.now() + '-' + f.id + '-' + days,
+        friendId: f.id,
+        type: type,
+        text: text,
+        receivedAt: new Date().toISOString()
+      });
+    }
+  });
+  
+  state.notifications = notifs;
+  persist();
+
   const sorted = [...state.notifications].sort((a,b)=>new Date(b.receivedAt)-new Date(a.receivedAt));
   const icons = {today:'🎉', upcoming:'⏰', past:'📅'};
   const labels = {today:'сегодня', upcoming:'скоро', past:'прошло'};
+
+  const dayOptions = [
+    { value: 30, label: 'За месяц (30 дней)' },
+    { value: 14, label: 'За 2 недели (14 дней)' },
+    { value: 7, label: 'За неделю (7 дней)' },
+    { value: 3, label: 'За 3 дня' },
+    { value: 0, label: 'В день рождения' }
+  ];
 
   const itemsHtml = sorted.map(n=>`
     <div class="notif-card">
@@ -627,20 +659,43 @@ function renderNotifications(){
           <div class="notif-text">${n.text}</div>
           <span class="notif-tag ${n.type}">${labels[n.type]}</span>
         </div>
-        <div class="notif-actions">
-          <button class="btn btn-small btn-ghost" data-action="mark-read" data-id="${n.id}">Прочитано ✓</button>
-        </div>
         <div class="notif-received">${formatReceivedAt(n.receivedAt)}</div>
       </div>
     </div>
   `).join('');
 
+  const settingsHtml = `
+    <div class="notification-settings panel">
+      <h3>⚙️ Настройки уведомлений</h3>
+      <p class="settings-desc">Выберите, за сколько дней до дня рождения вы хотите получать оповещения:</p>
+      <div class="settings-checkboxes">
+        ${dayOptions.map(opt => `
+          <label class="setting-checkbox">
+            <input type="checkbox" 
+                   data-day="${opt.value}" 
+                   ${settings.daysBefore.includes(opt.value) ? 'checked' : ''}>
+            ${opt.label}
+          </label>
+        `).join('')}
+      </div>
+      <div class="settings-actions">
+        <button class="btn btn-primary btn-small" data-action="save-notification-settings">
+          💾 Сохранить настройки
+        </button>
+        <button class="btn btn-ghost btn-small" data-action="refresh-notifications">
+          🔄 Обновить уведомления
+        </button>
+      </div>
+    </div>
+  `;
+
   return `
     <div class="page-head">
       <div class="eyebrow">Напоминания</div>
       <h1 class="page-title">Уведомления</h1>
-      <p class="page-desc">Появляются автоматически за месяц, 2 недели, неделю, 3 дня и в день рождения друга, на которого вы подписаны.</p>
+      <p class="page-desc">Появляются автоматически за выбранное количество дней до дня рождения друга, на которого вы подписаны.</p>
     </div>
+    ${settingsHtml}
     <div class="notif-list">
       ${itemsHtml || '<div class="empty-state"><div class="ee">🔔</div>Уведомлений пока нет. Подпишитесь на друзей на вкладке «Друзья».</div>'}
     </div>

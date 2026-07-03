@@ -41,7 +41,11 @@ function seedState(){
     ],
     chats: [],
     readNotifications: [],
-    notifications: []
+    notifications: [],
+    notificationSettings: {
+      enabled: true,
+      daysBefore: [30, 14, 7, 3, 0] 
+    },
   };
 }
 
@@ -214,4 +218,38 @@ function removeFriendById(friendId) {
 
 function getAllUsersForSearch() {
   return state.allUsers.filter(u => u.id !== state.user.id);
+}
+
+// data.js — добавить функцию
+
+function refreshNotifications() {
+  const settings = state.notificationSettings || { daysBefore: [30, 14, 7, 3, 0] };
+  const thresholds = settings.daysBefore;
+  
+  // Очищаем старые уведомления
+  state.notifications = [];
+  
+  // Генерируем новые на основе настроек
+  state.friends.filter(f => f.subscribed).forEach(f => {
+    const days = daysUntilBirthday(f.birthdate);
+    
+    // Проверяем, есть ли текущий день в выбранных порогах
+    if (thresholds.includes(days)) {
+      const type = days === 0 ? 'today' : 'upcoming';
+      const text = days === 0
+        ? `🎉 Сегодня день рождения у ${f.name}!`
+        : `⏰ Через ${days} ${pluralDays(days)} день рождения у ${f.name}`;
+      
+      state.notifications.push({
+        id: 'notif-' + Date.now() + '-' + f.id + '-' + days,
+        friendId: f.id,
+        type: type,
+        text: text,
+        receivedAt: new Date().toISOString()
+      });
+    }
+  });
+  
+  persist();
+  updateNotificationBadge();
 }
