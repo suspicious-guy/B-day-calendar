@@ -1,8 +1,3 @@
-/*
-  Простое файловое хранилище чатов.
-  На проде это стоит заменить на настоящую БД (SQLite/Postgres/Mongo),
-  но для локального сервера и демо JSON-файла достаточно.
-*/
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';

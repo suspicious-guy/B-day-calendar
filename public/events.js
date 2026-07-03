@@ -21,18 +21,32 @@ function render(){
   renderContent();
 }
 
-document.getElementById('tabs').addEventListener('click', e=>{
+document.getElementById('tabs').addEventListener('click', async e => {
   const btn = e.target.closest('.tab-btn');
-  if(!btn) return;
-  state.activeTab = btn.dataset.tab;
+  if (!btn) return;
+  
+  const targetTab = btn.dataset.tab;
+  
+  // Перед переходом в чаты — скачиваем актуальный список с сервера
+  if (targetTab === 'chats') {
+    try {
+      if (typeof loadChatsList === 'function') {
+        await loadChatsList();
+      }
+    } catch (err) {
+      console.error("Ошибка загрузки чатов с сервера:", err);
+    }
+  }
+
+  state.activeTab = targetTab;
   persist();
   renderTabs();
   renderContent();
 });
 
-document.getElementById('content').addEventListener('click', e=>{
+document.getElementById('content').addEventListener('click', async e => { // добавили async
   const el = e.target.closest('[data-action]');
-  if(!el) return;
+  if (!el) return;
   const action = el.dataset.action;
 
   if(action==='add-group') addGroup();
@@ -46,10 +60,21 @@ document.getElementById('content').addEventListener('click', e=>{
     renderContent();
   }
   else if(action==='save-account') saveAccount();
-  else if(action==='open-chat'){
-  openChat(el.dataset.id);
-}
-  else if(action==='send-msg') sendMessage();
+  if (action === 'open-chat') {
+    const chatId = el.dataset.id;
+    state.activeChatId = chatId;
+    persist();
+    if (typeof openChat === 'function') {
+      await openChat(chatId); // Ждем загрузки истории чата с сервера
+    } else {
+      renderContent();
+    }
+  }
+  else if (action === 'send-msg') {
+    if (typeof sendMessage === 'function') {
+      sendMessage(); // вызываем отправку на сервер
+    }
+  }
   else if(action==='toggle-subscribe'){
     const f = findFriend(el.dataset.id);
     f.subscribed = !f.subscribed;
@@ -58,7 +83,13 @@ document.getElementById('content').addEventListener('click', e=>{
     renderTabs();
     renderContent(true);
   }
-  else if(action==='discuss-gift') openOrCreateChatForFriend(el.dataset.id);
+  else if (action === 'discuss-gift') {
+    // Если кликнули «Обсудить подарок» на карточке друга
+    const friendId = el.dataset.id;
+    if (typeof openOrCreateChatForFriend === 'function') {
+      await openOrCreateChatForFriend(friendId);
+    }
+  }
   else if(action==='filter-alpha'){ state.friendFilter='alpha'; persist(); renderContent(true); }
   else if(action==='filter-date'){ state.friendFilter='date'; persist(); renderContent(true); }
   else if(action==='mark-read'){

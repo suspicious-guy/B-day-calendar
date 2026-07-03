@@ -27,13 +27,13 @@ function renderTodayCard(){
 }
 
 function renderTabs(){
-  const unreadCount = unreadNotifications().length;
+  const unread = unreadNotifications();
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     const tab = btn.dataset.tab;
     btn.classList.toggle('active', state.activeTab===tab);
     let extra = '';
-    if(tab==='notifications' && unreadCount){
-      extra = `<span class="badge">${unreadCount}</span>`;
+    if(tab==='notifications' && unread.length){
+      extra = `<span class="badge">${unread.length}</span>`;
     }
     const icon = btn.querySelector('.ico').outerHTML;
     const label = {account:'Аккаунт', chats:'Чаты', friends:'Друзья', notifications:'Уведомления'}[tab];
@@ -144,8 +144,10 @@ function saveAccount(){
 }
 
 /*Chats*/
-let chatSummaries = [];   // из ChatClient.fetchChats()
-let activeChatData = null; // из ChatClient.fetchChat(id) / WS history
+// ЗАМЕНА: раньше здесь были state.chats / lastMessage(chat) / findChat().
+// Теперь список чатов приходит с сервера через ChatClient.
+let chatSummaries = [];    // из ChatClient.fetchChats() — краткий список для левой панели
+let activeChatData = null; // из ChatClient.fetchChat(id) / обновляется по WebSocket
 
 async function loadChatsList(){
   chatSummaries = await ChatClient.fetchChats();
@@ -153,29 +155,32 @@ async function loadChatsList(){
 
 async function openChat(chatId){
   state.activeChatId = chatId;
+  persist();
   ChatClient.joinChat(chatId);
   activeChatData = await ChatClient.fetchChat(chatId);
   renderContent();
 }
 
-// получаем сообщения в реальном времени
+// приходит с сервера: либо history (при join), либо одно новое message
 ChatClient.onMessage((chatId, message, history) => {
   if (chatId !== state.activeChatId) {
-    // можно показать бейдж "новое сообщение" на чате в списке
+    // сообщение пришло в чат, который сейчас не открыт —
+    // можно подсветить его в списке (доработать при желании)
     return;
   }
+  if (!activeChatData) return;
   if (history) {
     activeChatData.messages = history;
   } else if (message) {
     activeChatData.messages.push(message);
   }
-  renderContent(true); // перерисовать без потери фокуса
+  renderContent(true); // перерисовать без потери фокуса в поле ввода
 });
 
-function lastMessage(chat){
-  if(!chat.messages.length) return 'Нет сообщений';
-  const m = chat.messages[chat.messages.length-1];
-  return (m.mine ? 'Вы: ' : '') + m.text;
+function lastMessagePreview(summary){
+  const m = summary.lastMessage;
+  if(!m) return 'Нет сообщений';
+  return (m.authorLogin===state.currentLogin ? 'Вы: ' : '') + m.text;
 }
 
 function renderChats(){
@@ -248,6 +253,7 @@ function sendMessage(){
   const inp = document.getElementById('msgInput');
   const val = inp.value.trim();
   if(!val) return;
+  if(!state.activeChatId) return;
   ChatClient.sendMessage(
     state.activeChatId,
     val,
@@ -256,7 +262,7 @@ function sendMessage(){
   );
   inp.value = '';
   // сообщение подставится само через ChatClient.onMessage,
-  // когда сервер разошлёт его всем участникам (включая вас)
+  // как только сервер разошлёт его всем участникам (включая вас)
 }
 
 async function openOrCreateChatForFriend(friendId){
@@ -266,10 +272,12 @@ async function openOrCreateChatForFriend(friendId){
     const id = 'chat-' + friend.id;
     await ChatClient.createChat({ id, type:'direct', name: friend.name, color: friend.color });
     friend.chatId = id;
-    persist(); // остальное состояние (friends) всё ещё можно держать как есть
+    persist();
   }
   state.activeTab = 'chats';
-  openChat(friend.chatId);
+  await loadChatsList();
+  renderTabs();
+  await openChat(friend.chatId);
 }
 
 /*Friends*/
@@ -347,8 +355,7 @@ function wireFriends(){
   }
 }
 
-/*Notifications — список формируется автоматически из generateNotifications()/
-  unreadNotifications() в data.js на основе дат рождения подписанных друзей. */
+/*Notifications*/
 function renderNotifications(){
   const list = unreadNotifications();
   const icons = {today:'🎉', upcoming:'⏰'};
@@ -362,9 +369,7 @@ function renderNotifications(){
           <div class="notif-text">${n.text}</div>
           <span class="notif-tag ${n.type}">${labels[n.type]}</span>
         </div>
-        <div class="notif-actions">
-          <button class="btn btn-small btn-ghost" data-action="mark-read" data-id="${n.id}">Прочитано ✓</button>
-        </div>
+        <button class="btn btn-ghost btn-small" data-action="mark-read" data-id="${n.id}">Отметить прочитанным</button>
       </div>
     </div>
   `).join('');
@@ -373,10 +378,10 @@ function renderNotifications(){
     <div class="page-head">
       <div class="eyebrow">Напоминания</div>
       <h1 class="page-title">Уведомления</h1>
-      <p class="page-desc">Появляются автоматически за месяц, 2 недели, неделю, 3 дня и в день рождения друга, на которого вы подписаны.</p>
+      <p class="page-desc">О днях рождения друзей, на которых вы подписаны — предстоящих и сегодняшних.</p>
     </div>
     <div class="notif-list">
-      ${itemsHtml || '<div class="empty-state"><div class="ee">🔔</div>Уведомлений пока нет. Подпишитесь на друзей на вкладке «Друзья».</div>'}
+      ${itemsHtml || '<div class="empty-state"><div class="ee">🔔</div>Новых уведомлений нет. Подпишитесь на друзей на вкладке «Друзья».</div>'}
     </div>
   `;
 }

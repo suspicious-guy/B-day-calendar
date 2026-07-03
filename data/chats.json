@@ -1,0 +1,103 @@
+[
+  {
+    "id": "chat-nikita",
+    "type": "direct",
+    "name": "Никита Орлов",
+    "color": "#E8734A",
+    "participants": [],
+    "messages": [
+      {
+        "id": "m1",
+        "authorLogin": "nikita",
+        "authorName": "Никита Орлов",
+        "text": "Привет! Скоро мой ДР, никому не говори 😄",
+        "time": "2026-07-01T18:22:00"
+      },
+      {
+        "id": "m2",
+        "authorLogin": "me",
+        "authorName": "Вы",
+        "text": "Уже думаем, что подарить)",
+        "time": "2026-07-01T18:25:00"
+      }
+    ]
+  },
+  {
+    "id": "chat-ivan",
+    "type": "direct",
+    "name": "Иван Петров",
+    "color": "#6E8F74",
+    "participants": [],
+    "messages": [
+      {
+        "id": "m3",
+        "authorLogin": "me",
+        "authorName": "Вы",
+        "text": "Может, скинемся на наушники из его списка?",
+        "time": "2026-06-29T12:10:00"
+      }
+    ]
+  },
+  {
+    "id": "chat-group-972501",
+    "type": "group",
+    "name": "Группа 972501, ТГУ",
+    "color": "#4C6E8F",
+    "participants": [],
+    "messages": [
+      {
+        "id": "m4",
+        "authorLogin": "olga",
+        "authorName": "Ольга Смирнова",
+        "text": "Народ, у Ивана ДР 10 июля, надо собраться",
+        "time": "2026-07-02T10:05:00"
+      },
+      {
+        "id": "m5",
+        "authorLogin": "dmitry",
+        "authorName": "Дмитрий Волков",
+        "text": "Го скинемся на наушники из вишлиста",
+        "time": "2026-07-02T10:12:00"
+      },
+      {
+        "id": "m6",
+        "authorLogin": "me",
+        "authorName": "Вы",
+        "text": "Я за, пишите кто сколько может",
+        "time": "2026-07-02T10:20:00"
+      }
+    ]
+  },
+  {
+    "id": "chat-group-volley",
+    "type": "group",
+    "name": "Сборная по волейболу",
+    "color": "#A35FA3",
+    "participants": [],
+    "messages": [
+      {
+        "id": "m7",
+        "authorLogin": "maria",
+        "authorName": "Мария Соколова",
+        "text": "Тренировка переносится на 19:00",
+        "time": "2026-07-02T08:40:00"
+      }
+    ]
+  },
+  {
+    "id": "chat-f7",
+    "type": "direct",
+    "name": "Подскребышева Яна",
+    "color": "#5e3f8f",
+    "participants": [],
+    "messages": []
+  },
+  {
+    "id": "chat-f3",
+    "type": "direct",
+    "name": "Ольга Смирнова",
+    "color": "#D9A441",
+    "participants": [],
+    "messages": []
+  }
+]

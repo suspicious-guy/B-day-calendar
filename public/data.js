@@ -21,7 +21,7 @@ function seedState(){
       wishlist:['Наушники Sony WH-1000XM5','Книга «Атомные привычки»']
     },
     friends:[
-      {id:'f1', name:'Никита Орлов', birthdate:'2002-07-05', groups:['Сборная по волейболу'], wishlist:['Кроссовки для зала','Спортивный термос'], subscribed:true, chatId:'chat-nikita', color:'#E8734A'},
+      {id:'f1', name:'Никита Орлов', birthdate:'2002-07-04', groups:['Сборная по волейболу'], wishlist:['Кроссовки для зала','Спортивный термос'], subscribed:true, chatId:'chat-nikita', color:'#E8734A'},
       {id:'f2', name:'Иван Петров', birthdate:'2003-07-10', groups:['Группа 972501, ТГУ'], wishlist:['Наушники Sony WH-1000XM5','Книга «Атомные привычки»'], subscribed:true, chatId:'chat-ivan', color:'#6E8F74'},
       {id:'f3', name:'Ольга Смирнова', birthdate:'2003-08-02', groups:['Группа 972501, ТГУ'], wishlist:['Плед','Набор для рисования'], subscribed:false, chatId:null, color:'#D9A441'},
       {id:'f4', name:'Дмитрий Волков', birthdate:'2004-01-15', groups:['Группа 972501, ТГУ'], wishlist:['Механическая клавиатура'], subscribed:true, chatId:null, color:'#4C6E8F'},
