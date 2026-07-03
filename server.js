@@ -15,9 +15,16 @@ app.use(express.json());
 
 app.use('/api', apiRouter);
 
-// Отдаём вспомогательный клиентский модуль (public/chat-client.js),
-// можно подключить прямо в index.html: <script src="http://localhost:3001/chat-client.js"></script>
-app.use(express.static(path.join(__dirname, 'public')));
+// Отдаём фронтенд из public/. Кэш отключён (maxAge: 0), чтобы клиенты
+// сразу видели новую версию файлов после каждого деплоя/перезапуска
+// сервера, без ручного хард-рефреша в браузере.
+app.use(express.static(path.join(__dirname, 'public'), {
+  etag: false,
+  maxAge: 0,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store');
+  }
+}));
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 
