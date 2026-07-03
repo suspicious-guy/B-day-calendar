@@ -129,8 +129,9 @@ function renderAccount() {
         </div>
         
         <div class="save-row">
-          <button class="btn btn-primary" data-action="save-account">Сохранить изменения</button>
-          <span class="saved-msg" id="savedMsg">Сохранено ✓</span>
+            <button class="btn btn-primary" data-action="save-account">Сохранить изменения</button>
+            <span class="saved-msg" id="savedMsg">Сохранено ✓</span>
+            <button class="btn btn-ghost btn-logout" data-action="logout">🚪 Выйти</button>
         </div>
       </div>
       <div class="panel profile-card">
