@@ -8,6 +8,7 @@ function seedState(){
   return {
     activeTab:'account',
     activeChatId:'chat-nikita',
+    currentLogin:null,
     friendFilter:'date',
     friendSearch:'',
     user:{

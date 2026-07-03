@@ -128,7 +128,7 @@ nav.tabs{display:flex;flex-direction:column;gap:8px;flex:1;}
 .form-block{padding:28px;}
 .field{margin-bottom:20px;}
 .field label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:0.4px;}
-.field input[type=text], .field input[type=date]{
+.field input[type=text], .field input[type=date], .field input[type=password]{
   width:100%;padding:11px 13px;border-radius:9px;border:1px solid var(--line);
   font-family:'Inter',sans-serif;font-size:14.5px;color:var(--ink-text);background:var(--parchment-2);
   outline:none;transition:border .15s;
@@ -260,6 +260,56 @@ nav.tabs{display:flex;flex-direction:column;gap:8px;flex:1;}
 
 .empty-state{padding:60px 20px;text-align:center;color:var(--muted);font-size:14px;}
 .empty-state .ee{font-size:34px;margin-bottom:10px;}
+
+/* ---------- Auth overlay ---------- */
+.auth-overlay{
+  position:fixed;inset:0;
+  background:linear-gradient(135deg, var(--flame) 0%, var(--gold) 100%);
+  display:none;
+  align-items:center;justify-content:center;
+  z-index:1000;
+  padding:20px;
+}
+.auth-overlay.show{display:flex;}
+.auth-card{
+  background:#fff;
+  border-radius:var(--radius);
+  padding:38px 34px 30px;
+  width:100%;
+  max-width:380px;
+  box-shadow:0 24px 60px rgba(22,33,61,0.35);
+  animation:auth-pop .25s ease;
+}
+@keyframes auth-pop{
+  from{opacity:0;transform:translateY(8px) scale(0.98);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+.auth-card h2{
+  font-family:'Fraunces',serif;
+  font-size:26px;
+  font-weight:600;
+  margin:0 0 22px;
+  text-align:center;
+  color:var(--ink-text);
+}
+.auth-error{
+  color:#C0392B;
+  font-size:13px;
+  font-weight:600;
+  min-height:18px;
+  margin-top:2px;
+  text-align:center;
+}
+.auth-submit{width:100%;margin-top:8px;padding:12px;font-size:14.5px;}
+.auth-switch{
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+  margin-top:16px;
+}
+.auth-switch a{color:var(--flame-dark);font-weight:600;text-decoration:none;cursor:pointer;}
+.auth-switch a:hover{text-decoration:underline;}
+.btn-logout{margin-left:auto;}
 
 @media (max-width:900px){
   .sidebar{width:220px;}
