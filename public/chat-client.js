@@ -1,6 +1,10 @@
 (function () {
-  const SERVER_URL = 'http://localhost:3001';
-  const WS_URL = SERVER_URL.replace('http', 'ws') + '/ws';
+  // Фронтенд отдаётся тем же сервером (public/), поэтому просто берём текущий origin.
+  // Работает и локально (http://localhost:3001), и на реальном сервере (https://your-domain.com).
+  const SERVER_URL = window.location.origin;
+  const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  // window.location.host уже включает в себя и IP/домен, и порт (например, 192.168.1.50:3001)
+  const WS_URL = `${WS_PROTOCOL}://${window.location.host}/ws`;
 
   let socket = null;
   let onIncomingMessage = () => {};
