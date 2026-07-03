@@ -14,7 +14,8 @@ function seedState(){
     user:{
       name:'Введите имя',
       birthdate:'2003-11-08',
-      groups:['Группа 972501, ТГУ','Сборная по волейболу']
+      groups:['Группа 972501, ТГУ','Сборная по волейболу'],
+      wishlist:['Наушники Sony WH-1000XM5','Книга «Атомные привычки»']
     },
     friends:[
       {id:'f1', name:'Никита Орлов', birthdate:'2002-07-05', groups:['Сборная по волейболу'], wishlist:['Кроссовки для зала','Спортивный термос'], subscribed:true, chatId:'chat-nikita', color:'#E8734A'},

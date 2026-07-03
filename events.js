@@ -40,6 +40,11 @@ document.getElementById('content').addEventListener('click', e=>{
     state.user.groups.splice(Number(el.dataset.idx),1);
     renderContent();
   }
+  else if(action==='add-wishlist') addWishlistItem();
+  else if(action==='remove-wishlist'){
+    state.user.wishlist.splice(Number(el.dataset.idx),1);
+    renderContent();
+  }
   else if(action==='save-account') saveAccount();
   else if(action==='open-chat'){
     state.activeChatId = el.dataset.id;

@@ -76,12 +76,25 @@ function renderAccount(){
           <button class="btn btn-ghost btn-logout" data-action="logout">Выйти</button>
         </div>
       </div>
-      <div class="panel profile-card">
-        <div class="avatar-big">${initials(u.name)}</div>
-        <div class="p-name">${escapeHtml(u.name)}</div>
-        <div class="p-date">🎂 ${formatBirthdayFull(u.birthdate)}</div>
-        <div class="p-groups">
-          ${u.groups.map(g=>`<span>${escapeHtml(g)}</span>`).join('')}
+      <div class="account-side">
+        <div class="panel profile-card">
+          <div class="avatar-big">${initials(u.name)}</div>
+          <div class="p-name">${escapeHtml(u.name)}</div>
+          <div class="p-date">🎂 ${formatBirthdayFull(u.birthdate)}</div>
+          <div class="p-groups">
+            ${u.groups.map(g=>`<span>${escapeHtml(g)}</span>`).join('')}
+          </div>
+        </div>
+        <div class="panel wishlist-panel">
+          <div class="wishlist-title">Мой вишлист подарков</div>
+          <div class="wishlist-sub">Друзья увидят его, когда будут обсуждать ваш подарок</div>
+          <div class="chip-row" id="wishlistChips">
+            ${u.wishlist.map((w,i)=>`<span class="chip">${escapeHtml(w)}<button data-action="remove-wishlist" data-idx="${i}">✕</button></span>`).join('') || '<span style="font-size:13px;color:var(--muted)">Пока пусто</span>'}
+          </div>
+          <div class="add-group-row">
+            <input type="text" id="inpNewWish" placeholder="Например: Наушники Sony WH-1000XM5">
+            <button class="btn btn-ghost btn-small" data-action="add-wishlist">Добавить</button>
+          </div>
         </div>
       </div>
     </div>
@@ -92,6 +105,9 @@ function wireAccount(){
   document.getElementById('inpNewGroup')?.addEventListener('keydown', e=>{
     if(e.key==='Enter'){ e.preventDefault(); addGroup(); }
   });
+  document.getElementById('inpNewWish')?.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); addWishlistItem(); }
+  });
 }
 
 function addGroup(){
@@ -99,6 +115,15 @@ function addGroup(){
   const val = inp.value.trim();
   if(!val) return;
   state.user.groups.push(val);
+  inp.value='';
+  renderContent();
+}
+
+function addWishlistItem(){
+  const inp = document.getElementById('inpNewWish');
+  const val = inp.value.trim();
+  if(!val) return;
+  state.user.wishlist.push(val);
   inp.value='';
   renderContent();
 }
