@@ -63,6 +63,12 @@ document.getElementById('content').addEventListener('click', e=>{
   else if(action==='discuss-gift') openOrCreateChatForFriend(el.dataset.id);
   else if(action==='filter-alpha'){ state.friendFilter='alpha'; persist(); renderContent(true); }
   else if(action==='filter-date'){ state.friendFilter='date'; persist(); renderContent(true); }
+  else if(action==='mark-read'){
+    state.readNotifications.push(el.dataset.id);
+    persist();
+    renderTabs();
+    renderContent();
+  }
   else if(action==='logout') logout();
 });
 

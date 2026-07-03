@@ -27,13 +27,13 @@ function renderTodayCard(){
 }
 
 function renderTabs(){
-  const upcomingCount = state.friends.filter(f=>f.subscribed && daysUntilBirthday(f.birthdate)<=7).length;
+  const unreadCount = unreadNotifications().length;
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     const tab = btn.dataset.tab;
     btn.classList.toggle('active', state.activeTab===tab);
     let extra = '';
-    if(tab==='notifications' && state.notifications.length){
-      extra = `<span class="badge">${state.notifications.length}</span>`;
+    if(tab==='notifications' && unreadCount){
+      extra = `<span class="badge">${unreadCount}</span>`;
     }
     const icon = btn.querySelector('.ico').outerHTML;
     const label = {account:'Аккаунт', chats:'Чаты', friends:'Друзья', notifications:'Уведомления'}[tab];
@@ -318,13 +318,14 @@ function wireFriends(){
   }
 }
 
-/*Notifications*/
+/*Notifications — список формируется автоматически из generateNotifications()/
+  unreadNotifications() в data.js на основе дат рождения подписанных друзей. */
 function renderNotifications(){
-  const sorted = [...state.notifications].sort((a,b)=>new Date(b.receivedAt)-new Date(a.receivedAt));
-  const icons = {today:'🎉', upcoming:'⏰', past:'📅'};
-  const labels = {today:'сегодня', upcoming:'скоро', past:'прошло'};
+  const list = unreadNotifications();
+  const icons = {today:'🎉', upcoming:'⏰'};
+  const labels = {today:'сегодня', upcoming:'скоро'};
 
-  const itemsHtml = sorted.map(n=>`
+  const itemsHtml = list.map(n=>`
     <div class="notif-card">
       <div class="notif-icon ${n.type}">${icons[n.type]}</div>
       <div class="notif-body">
@@ -332,7 +333,9 @@ function renderNotifications(){
           <div class="notif-text">${n.text}</div>
           <span class="notif-tag ${n.type}">${labels[n.type]}</span>
         </div>
-        <div class="notif-received">${formatReceivedAt(n.receivedAt)}</div>
+        <div class="notif-actions">
+          <button class="btn btn-small btn-ghost" data-action="mark-read" data-id="${n.id}">Прочитано ✓</button>
+        </div>
       </div>
     </div>
   `).join('');
@@ -341,7 +344,7 @@ function renderNotifications(){
     <div class="page-head">
       <div class="eyebrow">Напоминания</div>
       <h1 class="page-title">Уведомления</h1>
-      <p class="page-desc">О днях рождения друзей, на которых вы подписаны — предстоящих и уже прошедших.</p>
+      <p class="page-desc">Появляются автоматически за месяц, 2 недели, неделю, 3 дня и в день рождения друга, на которого вы подписаны.</p>
     </div>
     <div class="notif-list">
       ${itemsHtml || '<div class="empty-state"><div class="ee">🔔</div>Уведомлений пока нет. Подпишитесь на друзей на вкладке «Друзья».</div>'}
