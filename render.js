@@ -57,8 +57,7 @@ function renderTabs(){
   });
 }
 
-/*Account*/
-function renderAccount(){
+function renderAccount() {
   const u = state.user;
   const hasData = u.name || u.birthdate || u.groups.length > 0;
   const allGroups = state.groups || [];
@@ -83,7 +82,7 @@ function renderAccount(){
           <label>Группы</label>
           <div class="chip-row" id="groupChips">
             ${u.groups.length > 0 
-              ? u.groups.map((g,i)=>`
+              ? u.groups.map((g,i) => `
                   <span class="chip">
                     ${escapeHtml(g)}
                     <button data-action="remove-group" data-idx="${i}">✕</button>
@@ -107,6 +106,27 @@ function renderAccount(){
             </div>
           ` : ''}
         </div>
+        
+        <!-- === ВИШЛИСТ === -->
+        <div class="field">
+          <label>🎁 Мои желаемые подарки</label>
+          <div class="wishlist-row" id="myWishlist">
+            ${u.wishlist && u.wishlist.length > 0 
+              ? u.wishlist.map((w, i) => `
+                  <span class="chip wishlist-chip">
+                    ${escapeHtml(w)}
+                    <button data-action="remove-wishlist" data-idx="${i}">✕</button>
+                  </span>
+                `).join('')
+              : '<span style="font-size:13px;color:var(--muted)">Пока нет желаемых подарков</span>'}
+          </div>
+          <div class="add-wishlist-row">
+            <input type="text" id="inpNewWishlist" placeholder="Добавить желаемый подарок..." 
+                   onkeydown="if(event.key==='Enter'){event.preventDefault();addWishlistItem();}">
+            <button class="btn btn-primary btn-small" data-action="add-wishlist">➕ Добавить</button>
+          </div>
+        </div>
+        
         <div class="save-row">
           <button class="btn btn-primary" data-action="save-account">Сохранить изменения</button>
           <span class="saved-msg" id="savedMsg">Сохранено ✓</span>
@@ -118,8 +138,16 @@ function renderAccount(){
         <div class="p-date">${u.birthdate ? `🎂 ${formatBirthdayFull(u.birthdate)}` : '<span style="color:#aaa;">Дата не указана</span>'}</div>
         <div class="p-groups">
           ${u.groups.length > 0 
-            ? u.groups.map(g=>`<span>${escapeHtml(g)}</span>`).join('')
+            ? u.groups.map(g => `<span>${escapeHtml(g)}</span>`).join('')
             : '<span style="color:#aaa;">Нет групп</span>'}
+        </div>
+        <div class="p-wishlist">
+          <strong>🎁 Желаемые подарки:</strong>
+          <div class="wishlist-items">
+            ${u.wishlist && u.wishlist.length > 0
+              ? u.wishlist.map(w => `<span class="wishlist-item">${escapeHtml(w)}</span>`).join('')
+              : '<span class="wishlist-empty">Не указаны</span>'}
+          </div>
         </div>
         ${!hasData ? '<div class="profile-hint">✨ Заполните профиль, чтобы друзья могли вас найти</div>' : ''}
       </div>
@@ -361,15 +389,12 @@ function openOrCreateChatForFriend(friendId){
   renderContent();
 }
 
-function renderFriends(){
-  // Проверяем, какая подвкладка активна
-  const subTab = state.friendSubTab || 'my'; // 'my' или 'search'
+function renderFriends() {
+  const subTab = state.friendSubTab || 'my';
   
-  // ---------- ВКЛАДКА "МОИ ДРУЗЬЯ" ----------
   if (subTab === 'my') {
     let friendsList = state.friends;
     
-    // Фильтрация по поиску среди друзей
     if (state.friendSearch) {
       const searchLower = state.friendSearch.toLowerCase();
       friendsList = friendsList.filter(f => 
@@ -377,7 +402,6 @@ function renderFriends(){
       );
     }
     
-    // Сортировка
     if (state.friendFilter === 'alpha') {
       friendsList = friendsList.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
     } else {
@@ -386,7 +410,6 @@ function renderFriends(){
       );
     }
     
-    // Карточки друзей
     const friendsHtml = friendsList.map(f => {
       const {num, mon} = formatBirthdayShort(f.birthdate);
       const days = daysUntilBirthday(f.birthdate);
@@ -420,6 +443,10 @@ function renderFriends(){
                     data-action="discuss-gift" data-id="${f.id}">
               ${chatExists ? '💬 Перейти в чат' : 'Обсудить подарок'}
             </button>
+            <button class="btn btn-small btn-ghost" 
+                    data-action="open-friend-profile" data-id="${f.id}">
+              👀 Профиль
+            </button>
             <button class="btn btn-small btn-danger" 
                     data-action="remove-friend" data-id="${f.id}">
               ✕ Удалить
@@ -436,7 +463,6 @@ function renderFriends(){
         <p class="page-desc">Управляйте списком друзей и находите новых.</p>
       </div>
       
-      <!-- ПЕРЕКЛЮЧАТЕЛЬ ВКЛАДОК -->
       <div class="sub-tabs">
         <button class="sub-tab-btn ${subTab === 'my' ? 'active' : ''}" 
                 data-action="switch-subtab" data-subtab="my">
@@ -448,7 +474,6 @@ function renderFriends(){
         </button>
       </div>
       
-      <!-- ПОИСК СРЕДИ ДРУЗЕЙ -->
       <div class="friends-toolbar">
         <div class="search-box">
           <span class="sico">🔍</span>
@@ -461,7 +486,6 @@ function renderFriends(){
         </div>
       </div>
       
-      <!-- СПИСОК ДРУЗЕЙ -->
       <div class="friends-section">
         <div class="friends-grid">
           ${friendsHtml || '<div class="empty-state"><div class="ee">👤</div>У вас пока нет друзей. Перейдите на вкладку «Найти друзей».</div>'}
@@ -470,12 +494,10 @@ function renderFriends(){
     `;
   }
   
-  // ---------- ВКЛАДКА "НАЙТИ ДРУЗЕЙ" ----------
   else if (subTab === 'search') {
     const searchQuery = state.searchQuery || '';
     const searchResults = searchQuery.length >= 2 ? searchUsers(searchQuery) : [];
     
-    // Результаты поиска
     let resultsHtml = '';
     if (searchQuery.length >= 2) {
       if (searchResults.length > 0) {
@@ -528,7 +550,6 @@ function renderFriends(){
         <p class="page-desc">Найдите пользователей и добавьте их в друзья.</p>
       </div>
       
-      <!-- ПЕРЕКЛЮЧАТЕЛЬ ВКЛАДОК -->
       <div class="sub-tabs">
         <button class="sub-tab-btn ${subTab === 'my' ? 'active' : ''}" 
                 data-action="switch-subtab" data-subtab="my">
@@ -540,17 +561,14 @@ function renderFriends(){
         </button>
       </div>
       
-      <!-- ПОИСК -->
       <div class="search-section">
         <div class="search-bar">
-          <input type="text" id="searchInput" placeholder="Введите имя для поиска..." 
-                 value="${escapeHtml(state.searchQuery || '')}">
+          <input type="text" id="searchInput" placeholder="Введите имя для поиска..." value="${escapeHtml(state.searchQuery || '')}">
           <button class="btn btn-primary" data-action="do-search">🔍 Найти</button>
           <button class="btn btn-ghost" data-action="clear-search">✕ Очистить</button>
         </div>
       </div>
       
-      <!-- РЕЗУЛЬТАТЫ -->
       ${resultsHtml}
     `;
   }
@@ -782,4 +800,174 @@ function showToast(message, type = 'success'){
     toast.classList.remove('show');
     setTimeout(() => toast.remove(), 300);
   }, 3000);
+}
+
+function renderFriendProfile() {
+  // Проверяем, есть ли activeFriendId в state
+  if (!state.activeFriendId) {
+    if (state.friends.length > 0) {
+      state.activeFriendId = state.friends[0].id;
+      persist();
+      return renderFriendProfile();
+    }
+  }
+  
+  const friend = state.friends.find(f => f.id === state.activeFriendId);
+  
+  if (!friend) {
+    if (state.friends.length > 0) {
+      state.activeFriendId = state.friends[0].id;
+      persist();
+      return renderFriendProfile();
+    }
+    
+    return `
+      <div class="page-head">
+        <div class="eyebrow">Просмотр профиля</div>
+        <h1 class="page-title">Профиль друга</h1>
+        <p class="page-desc">Здесь будет отображаться профиль выбранного друга.</p>
+      </div>
+      <div class="empty-state" style="padding:60px 20px;text-align:center;">
+        <div style="font-size:48px;margin-bottom:16px;">👤</div>
+        <h3 style="color:#333;margin-bottom:8px;">Нет друзей</h3>
+        <p style="color:#888;">
+          Добавьте друзей на вкладке «Друзья», чтобы просматривать их профили.
+        </p>
+        <button class="btn btn-primary" style="margin-top:16px;" 
+                data-action="switch-tab" data-tab="friends">
+          Перейти к друзьям
+        </button>
+      </div>
+    `;
+  }
+  
+  const days = daysUntilBirthday(friend.birthdate);
+  const hasChat = friend.chatId && findChat(friend.chatId);
+  const chatExists = !!hasChat;
+  
+  const friendListHtml = state.friends.map(f => `
+    <button class="profile-friend-item ${f.id === friend.id ? 'active' : ''}" 
+            data-action="switch-friend-profile" data-id="${f.id}">
+      <span class="pf-avatar" style="background:${f.color || '#4A90D9'}">
+        ${f.name.charAt(0).toUpperCase()}
+      </span>
+      <span class="pf-name">${escapeHtml(f.name)}</span>
+      ${f.id === friend.id ? '<span class="pf-check">✓</span>' : ''}
+    </button>
+  `).join('');
+  
+  return `
+    <div class="page-head">
+      <div class="eyebrow">Просмотр профиля</div>
+      <h1 class="page-title">Профиль друга</h1>
+      <p class="page-desc">Подробная информация о друге и его желаниях.</p>
+    </div>
+    
+    <div class="profile-friend-layout">
+      <div class="profile-friend-list">
+        <div class="profile-friend-list-title">Мои друзья (${state.friends.length})</div>
+        ${state.friends.length > 0 ? friendListHtml : '<div class="profile-friend-empty">Нет друзей</div>'}
+      </div>
+      
+      <div class="profile-friend-content">
+        <div class="profile-friend-header">
+          <div class="profile-friend-avatar" style="background:${friend.color || '#4A90D9'}">
+            ${friend.name.charAt(0).toUpperCase()}
+          </div>
+          <div class="profile-friend-info">
+            <div class="profile-friend-name">${escapeHtml(friend.name)}</div>
+            <div class="profile-friend-birth">
+              🎂 ${formatBirthdayFull(friend.birthdate)}
+              <span class="profile-friend-days ${days <= 3 ? 'urgent' : ''}">
+                ${days === 0 ? '🎉 Сегодня!' : 
+                  days === 1 ? 'Завтра!' :
+                  days > 0 ? `Через ${days} дней` :
+                  `Был ${Math.abs(days)} дней назад`}
+              </span>
+            </div>
+            <div class="profile-friend-groups">
+              ${friend.groups.map(g => `<span class="group-tag">${escapeHtml(g)}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        
+        <div class="profile-friend-actions">
+          <button class="btn btn-small ${friend.subscribed ? 'btn-sage' : 'btn-ghost'}" 
+                  data-action="toggle-subscribe" data-id="${friend.id}">
+            ${friend.subscribed ? '✓ Подписаны на уведомления' : '🔔 Подписаться на уведомления'}
+          </button>
+          <button class="btn btn-small btn-primary" 
+                  data-action="discuss-gift" data-id="${friend.id}">
+            ${chatExists ? '💬 Перейти в чат' : '💬 Обсудить подарок'}
+          </button>
+          <button class="btn btn-small btn-danger" 
+                  data-action="remove-friend" data-id="${friend.id}">
+            ✕ Удалить из друзей
+          </button>
+        </div>
+        
+        <div class="profile-friend-wishlist">
+          <h3 class="profile-friend-wishlist-title">🎁 Желаемые подарки (${friend.wishlist.length})</h3>
+          ${friend.wishlist.length > 0 ? `
+            <ul class="profile-friend-wishlist-list">
+              ${friend.wishlist.map(w => `<li>${escapeHtml(w)}</li>`).join('')}
+            </ul>
+          ` : `
+            <div class="profile-friend-wishlist-empty">
+              <p>😔 ${friend.name} пока не добавил желаемые подарки</p>
+            </div>
+          `}
+        </div>
+        
+        <div class="profile-friend-chat">
+          <h3 class="profile-friend-chat-title">💬 Обсуждение подарка</h3>
+          ${chatExists ? `
+            <button class="btn btn-primary" data-action="open-chat-from-profile" data-id="${friend.chatId}">
+              Перейти в чат
+            </button>
+          ` : `
+            <button class="btn btn-primary" data-action="discuss-gift" data-id="${friend.id}">
+              Создать обсуждение
+            </button>
+          `}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function wireFriendProfile() {
+}
+
+// render.js (добавить в конец)
+
+function addWishlistItem() {
+  const inp = document.getElementById('inpNewWishlist');
+  if (!inp) return;
+  
+  const val = inp.value.trim();
+  if (!val) {
+    showToast('Введите название подарка');
+    return;
+  }
+  
+  if (!state.user.wishlist) {
+    state.user.wishlist = [];
+  }
+  
+  state.user.wishlist.push(val);
+  inp.value = '';
+  persist();
+  renderContent();
+  showToast(`✅ Подарок "${val}" добавлен в вишлист`);
+}
+
+function removeWishlistItem(index) {
+  if (!state.user.wishlist || state.user.wishlist.length === 0) return;
+  
+  const removed = state.user.wishlist[index];
+  state.user.wishlist.splice(index, 1);
+  persist();
+  renderContent();
+  showToast(`🗑️ Подарок "${removed}" удалён`);
 }

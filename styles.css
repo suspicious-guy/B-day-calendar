@@ -917,3 +917,363 @@ nav.tabs{display:flex;flex-direction:column;gap:8px;flex:1;}
     padding: 8px 12px;
   }
 }
+
+/* ----- ПРОФИЛЬ ДРУГА ----- */
+.profile-friend-layout {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  min-height: 500px;
+}
+
+.profile-friend-list {
+  width: 220px;
+  flex-shrink: 0;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.profile-friend-list-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6c757d;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 8px;
+}
+
+.profile-friend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #212529;
+}
+
+.profile-friend-item:hover {
+  background: #e9ecef;
+}
+
+.profile-friend-item.active {
+  background: #e9ecef;
+  font-weight: 600;
+}
+
+.profile-friend-empty {
+  text-align: center;
+  color: #adb5bd;
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+.pf-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.pf-name {
+  flex: 1;
+  text-align: left;
+}
+
+.pf-check {
+  color: #28a745;
+  font-weight: 700;
+}
+
+.profile-friend-content {
+  flex: 1;
+}
+
+.profile-friend-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 16px;
+}
+
+.profile-friend-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 32px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.profile-friend-info {
+  flex: 1;
+}
+
+.profile-friend-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #212529;
+}
+
+.profile-friend-birth {
+  font-size: 15px;
+  color: #495057;
+  margin-top: 4px;
+}
+
+.profile-friend-days {
+  display: inline-block;
+  margin-left: 12px;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #e9ecef;
+  color: #495057;
+}
+
+.profile-friend-days.urgent {
+  background: #ff6b6b;
+  color: white;
+}
+
+.profile-friend-groups {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.profile-friend-groups .group-tag {
+  font-size: 12px;
+  padding: 3px 12px;
+  background: #e9ecef;
+  border-radius: 12px;
+  color: #495057;
+}
+
+.profile-friend-actions {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-friend-wishlist {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.profile-friend-wishlist-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 12px 0;
+}
+
+.profile-friend-wishlist-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-friend-wishlist-list li {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 14px;
+  color: #212529;
+}
+
+.profile-friend-wishlist-list li:last-child {
+  border-bottom: none;
+}
+
+.profile-friend-wishlist-empty {
+  text-align: center;
+  padding: 20px;
+  color: #adb5bd;
+}
+
+.profile-friend-chat {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  padding: 16px 20px;
+}
+
+.profile-friend-chat-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 12px 0;
+}
+
+/* ----- АДАПТИВНОСТЬ ----- */
+@media (max-width: 768px) {
+  .profile-friend-layout {
+    flex-direction: column;
+  }
+  
+  .profile-friend-list {
+    width: 100%;
+    max-height: 200px;
+  }
+  
+  .profile-friend-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .profile-friend-actions {
+    flex-direction: column;
+  }
+  
+  .profile-friend-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* styles.css (добавить в конец) */
+
+/* ----- ВИШЛИСТ В АККАУНТЕ ----- */
+.wishlist-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+  min-height: 40px;
+}
+
+.wishlist-chip {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+}
+
+.wishlist-chip button {
+  background: none;
+  border: none;
+  color: #856404;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 6px;
+  padding: 0 2px;
+}
+
+.wishlist-chip button:hover {
+  color: #dc3545;
+}
+
+.add-wishlist-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.add-wishlist-row input {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.add-wishlist-row input:focus {
+  outline: none;
+  border-color: #4A90D9;
+}
+
+/* styles.css */
+
+/* ----- ВИШЛИСТ В КАРТОЧКЕ ПРОФИЛЯ ----- */
+.p-wishlist {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 13px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.p-wishlist strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #495057;
+}
+
+.p-wishlist .wishlist-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.p-wishlist .wishlist-item {
+  display: inline-block;
+  background: #fff3cd;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #856404;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  box-sizing: border-box;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.p-wishlist .wishlist-empty {
+  color: #aaa;
+  font-size: 12px;
+}
+
+/* ----- АДАПТИВНОСТЬ ----- */
+@media (max-width: 600px) {
+  .add-wishlist-row {
+    flex-direction: column;
+  }
+  
+  .add-wishlist-row input {
+    width: 100%;
+  }
+  
+  .add-wishlist-row .btn {
+    width: 100%;
+  }
+}

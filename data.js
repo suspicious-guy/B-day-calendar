@@ -10,15 +10,17 @@ function seedState(){
   return {
     activeTab: 'account',
     activeChatId: null,
+    activeFriendId: null, 
     friendFilter: 'date',
     friendSearch: '',
     searchQuery: '',        
     friendSubTab: 'my', 
     user: {
       id: 'current-user',
-      name: 'Алексей',           // ← имя пользователя
-      birthdate: '1995-06-15',   // ← дата рождения пользователя
-      groups: ['ТГУ 972501']     // ← группы пользователя
+      name: '',          
+      birthdate: '0000-00-00',  
+      groups: [],
+      wishlist: [] 
     },
     groups: [                    // ← все группы в системе
       {id: 'group-1', name: 'ТГУ 972501', members: ['current-user', 'f2', 'f3', 'f4']},
@@ -28,7 +30,7 @@ function seedState(){
     friends: [],                 // ← ПУСТОЙ массив друзей
     
     // Все пользователи системы (для поиска)
-    allUsers: [                  // ← добавляем всех пользователей
+    allUsers: [               
       {id:'f1', name:'Никита Орлов', birthdate:'2002-07-05', groups:['Сборная по волейболу'], wishlist:['Кроссовки для зала','Спортивный термос'], color:'#E8734A'},
       {id:'f2', name:'Иван Петров', birthdate:'2003-07-10', groups:['ТГУ 972501'], wishlist:['Наушники Sony','Книга «Атомные привычки»'], color:'#6E8F74'},
       {id:'f3', name:'Ольга Смирнова', birthdate:'2003-08-02', groups:['ТГУ 972501'], wishlist:['Плед','Набор для рисования'], color:'#D9A441'},
@@ -43,15 +45,21 @@ function seedState(){
 
 let state = seedState();
 
-async function loadState(){
-  try{
+// data.js
+
+async function loadState() {
+  try {
     const res = await window.storage.get(STORAGE_KEY);
-    if(res && res.value){
+    if (res && res.value) {
       const parsed = JSON.parse(res.value);
+      // Если в сохранённых данных нет activeFriendId - добавляем
+      if (!parsed.activeFriendId) {
+        parsed.activeFriendId = null;
+      }
       state = Object.assign(seedState(), parsed);
     }
-  }catch(e){
-    // no saved state yet — keep seed
+  } catch (e) {
+    // нет сохранённых данных - используем seed
   }
   render();
 }

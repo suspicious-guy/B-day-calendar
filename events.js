@@ -53,6 +53,13 @@ document.getElementById('content').addEventListener('click', function(e) {
     if (f) {
       f.subscribed = !f.subscribed;
       persist();
+      
+      if (f.subscribed) {
+        updateNotificationsForFriend(f);
+      } else {
+        removeNotificationsForFriend(f.id);
+      }
+      
       renderTodayCard();
       renderTabs();
       renderContent(true);
@@ -115,6 +122,7 @@ document.getElementById('content').addEventListener('click', function(e) {
     if (confirm(`Удалить ${friendName} из друзей?`)) {
       const success = removeFriendById(friendId);
       if (success) {
+        removeNotificationsForFriend(friendId);
         showToast(`✅ ${friendName} удалён из друзей`);
         persist();
         renderContent();
@@ -122,6 +130,42 @@ document.getElementById('content').addEventListener('click', function(e) {
         renderTabs();
       }
     }
+  }
+  else if (action === 'switch-tab') {
+    state.activeTab = el.dataset.tab;
+    persist();
+    renderTabs();
+    renderContent();
+  }
+  else if (action === 'switch-friend-profile') {
+    const friendId = el.dataset.id;
+    state.activeFriendId = friendId;
+    state.activeTab = 'friend-profile';
+    persist();
+    renderTabs();
+    renderContent();
+  }
+  else if (action === 'open-chat-from-profile') {
+    state.activeChatId = el.dataset.id;
+    state.activeTab = 'chats';
+    persist();
+    renderTabs();
+    renderContent();
+  }
+  else if (action === 'open-friend-profile') {
+    const friendId = el.dataset.id;
+    state.activeFriendId = friendId;
+    state.activeTab = 'friend-profile';
+    persist();
+    renderTabs();
+    renderContent();
+  }
+  else if (action === 'add-wishlist') {
+    addWishlistItem();
+  }
+  else if (action === 'remove-wishlist') {
+    const idx = Number(el.dataset.idx);
+    removeWishlistItem(idx);
   }
 });
 
@@ -186,20 +230,142 @@ function renderContent(skipWire) {
   if (state.activeTab === 'account') content.innerHTML = renderAccount();
   else if (state.activeTab === 'chats') content.innerHTML = renderChats();
   else if (state.activeTab === 'friends') content.innerHTML = renderFriends();
+  else if (state.activeTab === 'friend-profile') content.innerHTML = renderFriendProfile();
   else content.innerHTML = renderNotifications();
 
   if (!skipWire) {
     if (state.activeTab === 'account') wireAccount();
     if (state.activeTab === 'chats') wireChats();
     if (state.activeTab === 'friends') wireFriends();
+    if (state.activeTab === 'friend-profile') wireFriendProfile();
   } else {
     if (state.activeTab === 'friends') wireFriends();
     if (state.activeTab === 'chats') wireChats();
+    if (state.activeTab === 'friend-profile') wireFriendProfile();
   }
 }
 
 function render() {
   renderTodayCard();
+  renderTabs();
+  renderContent();
+}
+
+function updateNotificationsForFriend(friend) {
+  const days = daysUntilBirthday(friend.birthdate);
+  
+  const existingIndex = state.notifications.findIndex(n => n.friendId === friend.id);
+  if (existingIndex > -1) {
+    state.notifications.splice(existingIndex, 1);
+  }
+  
+  let type = 'upcoming';
+  let text = '';
+  
+  if (days === 0) {
+    type = 'today';
+    text = `🎉 Сегодня день рождения у ${friend.name}!`;
+  } else if (days === 1) {
+    type = 'upcoming';
+    text = `⏰ Завтра день рождения у ${friend.name}!`;
+  } else if (days <= 7) {
+    type = 'upcoming';
+    text = `⏰ Через ${days} дней день рождения у ${friend.name}`;
+  } else if (days < 0) {
+    type = 'past';
+    const daysAgo = Math.abs(days);
+    text = `📅 ${daysAgo} дней назад был день рождения у ${friend.name}`;
+  } else {
+    text = `📅 День рождения у ${friend.name} через ${days} дней`;
+  }
+  
+  const notification = {
+    id: 'notif-' + Date.now() + '-' + friend.id,
+    friendId: friend.id,
+    type: type,
+    text: text,
+    receivedAt: new Date().toISOString()
+  };
+  
+  state.notifications.push(notification);
+  persist();
+  
+  updateNotificationBadge();
+}
+
+function removeNotificationsForFriend(friendId) {
+  state.notifications = state.notifications.filter(n => n.friendId !== friendId);
+  persist();
+  updateNotificationBadge();
+}
+
+function updateNotificationBadge() {
+  const unreadCount = state.notifications.length;
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(btn => {
+    if (btn.dataset.tab === 'notifications') {
+      const existingBadge = btn.querySelector('.badge');
+      if (existingBadge) existingBadge.remove();
+      
+      if (unreadCount > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'badge';
+        badge.textContent = unreadCount;
+        btn.appendChild(badge);
+      }
+    }
+  });
+}
+
+function checkAllNotifications() {
+  state.friends.forEach(friend => {
+    if (friend.subscribed) {
+      const days = daysUntilBirthday(friend.birthdate);
+      
+      const existingIndex = state.notifications.findIndex(n => n.friendId === friend.id);
+      
+      if (days === 0 && existingIndex === -1) {
+        const notification = {
+          id: 'notif-' + Date.now() + '-' + friend.id,
+          friendId: friend.id,
+          type: 'today',
+          text: `🎉 Сегодня день рождения у ${friend.name}!`,
+          receivedAt: new Date().toISOString()
+        };
+        state.notifications.push(notification);
+        showToast(`🎉 Сегодня день рождения у ${friend.name}!`, 'success');
+      } else if (days === 1 && existingIndex === -1) {
+        const notification = {
+          id: 'notif-' + Date.now() + '-' + friend.id,
+          friendId: friend.id,
+          type: 'upcoming',
+          text: `⏰ Завтра день рождения у ${friend.name}!`,
+          receivedAt: new Date().toISOString()
+        };
+        state.notifications.push(notification);
+        showToast(`⏰ Завтра день рождения у ${friend.name}!`, 'warning');
+      } else if (days >= 2 && days <= 7 && existingIndex === -1) {
+        const notification = {
+          id: 'notif-' + Date.now() + '-' + friend.id,
+          friendId: friend.id,
+          type: 'upcoming',
+          text: `⏰ Через ${days} дней день рождения у ${friend.name}`,
+          receivedAt: new Date().toISOString()
+        };
+        state.notifications.push(notification);
+      }
+    }
+  });
+  
+  persist();
+  updateNotificationBadge();
+  renderTabs();
+}
+
+function markNotificationsAsRead() {
+  state.notifications = [];
+  persist();
+  updateNotificationBadge();
   renderTabs();
   renderContent();
 }
@@ -215,6 +381,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
+  
+  setTimeout(function() {
+    checkAllNotifications();
+    updateNotificationBadge();
+  }, 500);
 });
 
 loadState();
