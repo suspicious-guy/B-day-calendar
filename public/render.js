@@ -300,20 +300,7 @@ function renderChats(){
       </div>`;
   }).join('');
 
-  // Возвращаем итоговую обертку для списка чатов
-  return `
-    <div class="page-head">
-      <div class="eyebrow">Общение</div>
-      <h1 class="page-title">Чаты</h1>
-    </div>
-    <div class="chats-layout">
-      <div class="chats-sidebar">${listHtml}</div>
-      <div class="chats-main" id="chatMainBox">
-        </div>
-    </div>
-  `;
-  }
-
+  // Логика окна сообщений (Thread) теперь корректно находится ВНУТРИ функции renderChats
   let threadHtml;
   if(activeChatData && activeChatData.id === state.activeChatId){
     const isGroupChat = activeChatData.type === 'group';
@@ -341,7 +328,6 @@ function renderChats(){
       </div>
       <div class="thread-body" id="threadBody">
         ${activeChatData.messages.map(m=>{
-          // Совместимость проверки авторства (проверяем твой authorLogin ИЛИ флаг m.mine команды)
           const isMine = m.authorLogin === state.currentLogin || m.mine;
           const isSystem = m.author === 'Система' || m.authorLogin === 'system';
           const authorName = m.authorName || m.author || 'Пользователь';
@@ -364,6 +350,7 @@ function renderChats(){
     threadHtml = `<div class="empty-thread">Выберите чат слева</div>`;
   }
 
+  // Общий возврат разметки страницы чатов
   return `
     <div class="page-head">
       <div class="eyebrow">Общение</div>
@@ -375,6 +362,7 @@ function renderChats(){
       <div class="chat-thread">${threadHtml}</div>
     </div>
   `;
+}
 
 function wireChats(){
   const body = document.getElementById('threadBody');
@@ -653,10 +641,6 @@ function renderFriends() {
     `;
   }
 }
-
-// render.js (добавить в функцию wireFriends)
-
-// render.js
 
 function wireFriends(){
   const search = document.getElementById('friendSearch');
