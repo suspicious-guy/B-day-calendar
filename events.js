@@ -130,42 +130,23 @@ document.getElementById('content').addEventListener('click', function(e) {
         renderTabs();
       }
     }
-  }
+  } 
+  else if (action === 'add-wishlist') {
+    addWishlistItem();
+  } 
+  else if (action === 'remove-wishlist') {
+    const idx = Number(el.dataset.idx);
+    removeWishlistItem(idx);
+  } 
+  else if (action === 'open-friend-profile') {
+    const friendId = el.dataset.id;
+    openFriendProfileModal(friendId);
+  } 
   else if (action === 'switch-tab') {
     state.activeTab = el.dataset.tab;
     persist();
     renderTabs();
     renderContent();
-  }
-  else if (action === 'switch-friend-profile') {
-    const friendId = el.dataset.id;
-    state.activeFriendId = friendId;
-    state.activeTab = 'friend-profile';
-    persist();
-    renderTabs();
-    renderContent();
-  }
-  else if (action === 'open-chat-from-profile') {
-    state.activeChatId = el.dataset.id;
-    state.activeTab = 'chats';
-    persist();
-    renderTabs();
-    renderContent();
-  }
-  else if (action === 'open-friend-profile') {
-    const friendId = el.dataset.id;
-    state.activeFriendId = friendId;
-    state.activeTab = 'friend-profile';
-    persist();
-    renderTabs();
-    renderContent();
-  }
-  else if (action === 'add-wishlist') {
-    addWishlistItem();
-  }
-  else if (action === 'remove-wishlist') {
-    const idx = Number(el.dataset.idx);
-    removeWishlistItem(idx);
   }
 });
 
@@ -208,6 +189,16 @@ function wireAccount() {
       }
     });
   }
+  
+  const wishInput = document.getElementById('inpNewWishlist');
+  if (wishInput) {
+    wishInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addWishlistItem();
+      }
+    });
+  }
 }
 
 function wireChats() {
@@ -230,18 +221,15 @@ function renderContent(skipWire) {
   if (state.activeTab === 'account') content.innerHTML = renderAccount();
   else if (state.activeTab === 'chats') content.innerHTML = renderChats();
   else if (state.activeTab === 'friends') content.innerHTML = renderFriends();
-  else if (state.activeTab === 'friend-profile') content.innerHTML = renderFriendProfile();
   else content.innerHTML = renderNotifications();
 
   if (!skipWire) {
     if (state.activeTab === 'account') wireAccount();
     if (state.activeTab === 'chats') wireChats();
     if (state.activeTab === 'friends') wireFriends();
-    if (state.activeTab === 'friend-profile') wireFriendProfile();
   } else {
     if (state.activeTab === 'friends') wireFriends();
     if (state.activeTab === 'chats') wireChats();
-    if (state.activeTab === 'friend-profile') wireFriendProfile();
   }
 }
 
@@ -369,6 +357,100 @@ function markNotificationsAsRead() {
   renderTabs();
   renderContent();
 }
+
+// ----- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ ДРУГА -----
+function openFriendProfileModal(friendId) {
+  const modal = document.getElementById('friendProfileModal');
+  const body = document.getElementById('friendProfileBody');
+  
+  if (!modal || !body) return;
+  
+  body.innerHTML = renderFriendProfileModal(friendId);
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFriendProfileModal() {
+  const modal = document.getElementById('friendProfileModal');
+  if (!modal) return;
+  
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('closeProfileModal')?.addEventListener('click', closeFriendProfileModal);
+
+document.getElementById('friendProfileModal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeFriendProfileModal();
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeFriendProfileModal();
+  }
+});
+
+document.getElementById('friendProfileBody')?.addEventListener('click', function(e) {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+  
+  if (action === 'modal-toggle-subscribe') {
+    const friendId = el.dataset.id;
+    const f = findFriend(friendId);
+    if (f) {
+      f.subscribed = !f.subscribed;
+      persist();
+      
+      if (f.subscribed) {
+        updateNotificationsForFriend(f);
+      } else {
+        removeNotificationsForFriend(f.id);
+      }
+      
+      renderTodayCard();
+      renderTabs();
+      renderContent(true);
+      
+      const body = document.getElementById('friendProfileBody');
+      if (body) {
+        body.innerHTML = renderFriendProfileModal(friendId);
+      }
+    }
+  }
+  else if (action === 'modal-discuss-gift') {
+    const friendId = el.dataset.id;
+    openOrCreateChatForFriend(friendId);
+    closeFriendProfileModal();
+  }
+  else if (action === 'modal-open-chat') {
+    state.activeChatId = el.dataset.id;
+    state.activeTab = 'chats';
+    persist();
+    renderTabs();
+    renderContent();
+    closeFriendProfileModal();
+  }
+  else if (action === 'modal-remove-friend') {
+    const friendId = el.dataset.id;
+    const friendName = state.friends.find(f => f.id === friendId)?.name || 'Пользователь';
+    
+    if (confirm(`Удалить ${friendName} из друзей?`)) {
+      const success = removeFriendById(friendId);
+      if (success) {
+        removeNotificationsForFriend(friendId);
+        showToast(`✅ ${friendName} удалён из друзей`);
+        persist();
+        renderContent();
+        renderTodayCard();
+        renderTabs();
+        closeFriendProfileModal();
+      }
+    }
+  }
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('keydown', function(e) {

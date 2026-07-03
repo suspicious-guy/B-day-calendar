@@ -25,7 +25,6 @@
       <button class="tab-btn" data-tab="account"><span class="ico">👤</span>Аккаунт</button>
       <button class="tab-btn" data-tab="chats"><span class="ico">💬</span>Чаты</button>
       <button class="tab-btn" data-tab="friends"><span class="ico">🎈</span>Друзья</button>
-      <button class="tab-btn" data-tab="friend-profile"><span class="ico">👀</span>Friend's profiles</button>
       <button class="tab-btn" data-tab="notifications"><span class="ico">🔔</span>Уведомления</button>
     </nav>
 
@@ -33,6 +32,13 @@
   </aside>
 
   <main class="content" id="content"></main>
+</div>
+<!-- Модальное окно профиля друга -->
+<div class="modal-overlay" id="friendProfileModal">
+  <div class="modal-content" id="friendProfileContent">
+    <button class="modal-close" id="closeProfileModal">✕</button>
+    <div id="friendProfileBody"></div>
+  </div>
 </div>
 <script src="data.js"></script>
 <script src="render.js"></script>

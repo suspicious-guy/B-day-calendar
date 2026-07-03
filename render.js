@@ -971,3 +971,87 @@ function removeWishlistItem(index) {
   renderContent();
   showToast(`🗑️ Подарок "${removed}" удалён`);
 }
+
+// render.js (добавить в конец)
+
+function renderFriendProfileModal(friendId) {
+  const friend = state.friends.find(f => f.id === friendId);
+  
+  if (!friend) {
+    return `
+      <div style="text-align:center;padding:40px;">
+        <p>Друг не найден</p>
+      </div>
+    `;
+  }
+  
+  const days = daysUntilBirthday(friend.birthdate);
+  const hasChat = friend.chatId && findChat(friend.chatId);
+  const chatExists = !!hasChat;
+  
+  return `
+    <div class="modal-friend-profile">
+      <div class="modal-friend-header">
+        <div class="modal-friend-avatar" style="background:${friend.color || '#4A90D9'}">
+          ${friend.name.charAt(0).toUpperCase()}
+        </div>
+        <div class="modal-friend-info">
+          <div class="modal-friend-name">${escapeHtml(friend.name)}</div>
+          <div class="modal-friend-birth">
+            🎂 ${formatBirthdayFull(friend.birthdate)}
+            <span class="modal-friend-days ${days <= 3 ? 'urgent' : ''}">
+              ${days === 0 ? '🎉 Сегодня!' : 
+                days === 1 ? 'Завтра!' :
+                days > 0 ? `Через ${days} дней` :
+                `Был ${Math.abs(days)} дней назад`}
+            </span>
+          </div>
+          <div class="modal-friend-groups">
+            ${friend.groups.map(g => `<span class="group-tag">${escapeHtml(g)}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-friend-actions">
+        <button class="btn btn-small ${friend.subscribed ? 'btn-sage' : 'btn-ghost'}" 
+                data-action="modal-toggle-subscribe" data-id="${friend.id}">
+          ${friend.subscribed ? '✓ Подписаны на уведомления' : '🔔 Подписаться на уведомления'}
+        </button>
+        <button class="btn btn-small btn-primary" 
+                data-action="modal-discuss-gift" data-id="${friend.id}">
+          ${chatExists ? '💬 Перейти в чат' : '💬 Обсудить подарок'}
+        </button>
+        <button class="btn btn-small btn-danger" 
+                data-action="modal-remove-friend" data-id="${friend.id}">
+          ✕ Удалить из друзей
+        </button>
+      </div>
+      
+      <div class="modal-friend-wishlist">
+        <h3 class="modal-friend-wishlist-title">🎁 Желаемые подарки (${friend.wishlist.length})</h3>
+        ${friend.wishlist.length > 0 ? `
+          <ul class="modal-friend-wishlist-list">
+            ${friend.wishlist.map(w => `<li>${escapeHtml(w)}</li>`).join('')}
+          </ul>
+        ` : `
+          <div class="modal-friend-wishlist-empty">
+            <p>😔 ${friend.name} пока не добавил желаемые подарки</p>
+          </div>
+        `}
+      </div>
+      
+      <div class="modal-friend-chat">
+        <h3 class="modal-friend-chat-title">💬 Обсуждение подарка</h3>
+        ${chatExists ? `
+          <button class="btn btn-primary" data-action="modal-open-chat" data-id="${friend.chatId}">
+            Перейти в чат
+          </button>
+        ` : `
+          <button class="btn btn-primary" data-action="modal-discuss-gift" data-id="${friend.id}">
+            Создать обсуждение
+          </button>
+        `}
+      </div>
+    </div>
+  `;
+}
