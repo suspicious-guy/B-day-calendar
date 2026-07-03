@@ -323,3 +323,1244 @@ nav.tabs{display:flex;flex-direction:column;gap:8px;flex:1;}
   .account-grid{grid-template-columns:1fr;}
   .content{padding:28px 22px 50px;}
 }
+
+/* Пустые состояния */
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.empty-state .ee {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.empty-state p {
+  color: #888;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Подсказка в профиле */
+.profile-hint {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+}
+
+/* Стили для чипов групп */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+  min-height: 32px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #f0f0f0;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #333;
+}
+
+.chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  font-size: 14px;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.chip button:hover {
+  color: #e74c3c;
+}
+
+.add-group-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.add-group-row input {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  font-size: 13px;
+  outline: none;
+}
+
+.add-group-row input:focus {
+  border-color: #4ECDC4;
+}
+
+/* Стили для аккаунта */
+.account-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.panel {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.form-block .field {
+  margin-bottom: 16px;
+}
+
+.form-block .field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.form-block .field input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-block .field input:focus {
+  border-color: #4ECDC4;
+}
+
+.save-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.saved-msg {
+  opacity: 0;
+  transition: opacity 0.3s;
+  color: #4ECDC4;
+  font-size: 14px;
+}
+
+.saved-msg.show {
+  opacity: 1;
+}
+
+.profile-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar-big {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.p-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.p-date {
+  font-size: 14px;
+  color: #666;
+}
+
+.p-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.p-groups span {
+  font-size: 12px;
+  background: #f0f0f0;
+  padding: 2px 10px;
+  border-radius: 12px;
+  color: #555;
+}
+
+/* Групповые действия */
+.group-actions {
+  margin-top: 8px;
+}
+
+.add-group-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.add-group-row input {
+  flex: 1;
+  min-width: 150px;
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  font-size: 13px;
+  outline: none;
+}
+
+.add-group-row input:focus {
+  border-color: #4ECDC4;
+}
+
+.add-group-row .btn {
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.btn-primary {
+  background: #4ECDC4;
+  color: white;
+  border-color: #4ECDC4;
+}
+
+.btn-primary:hover {
+  background: #45B7A9;
+}
+
+.btn-sage {
+  background: #6E8F74;
+  color: white;
+  border-color: #6E8F74;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: #ddd;
+  color: #555;
+}
+
+.btn-ghost:hover {
+  background: #f5f5f5;
+}
+
+/* Toast уведомления */
+.toast-message {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: #333;
+  color: white;
+  font-size: 14px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  max-width: 90%;
+}
+
+.toast-message.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast-message.success {
+  background: #4ECDC4;
+}
+
+.toast-message.warning {
+  background: #f39c12;
+}
+
+.toast-message.error {
+  background: #e74c3c;
+}
+
+/* Стили для существующих групп в подсказке */
+#groupSuggestions {
+  max-height: 100px;
+}
+
+/* ----- ПОИСК ----- */
+.search-results {
+  margin: 16px 0 24px 0;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.search-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 12px 0;
+}
+
+.search-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.search-result-item:hover {
+  border-color: #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-name {
+  font-weight: 600;
+  color: #212529;
+  font-size: 15px;
+}
+
+.search-birth {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.search-groups {
+  display: flex;
+  gap: 4px;
+}
+
+.search-groups span {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: #e9ecef;
+  border-radius: 10px;
+  color: #495057;
+}
+
+.search-empty {
+  padding: 20px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* ----- КНОПКИ ДЛЯ ПОИСКА ----- */
+.btn-success {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+.btn-success:hover {
+  background: #218838;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
+/* ----- СЧЁТЧИК ДРУЗЕЙ ----- */
+.friend-count {
+  font-size: 16px;
+  color: #6c757d;
+  font-weight: 400;
+}
+
+/* ----- РАЗДЕЛ СПИСКА ДРУЗЕЙ ----- */
+.friends-section {
+  margin-top: 8px;
+}
+
+.friends-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e9ecef;
+}
+/* styles.css (добавить в конец) */
+
+/* ----- ПЕРЕКЛЮЧАТЕЛЬ ПОДВКЛАДОК ----- */
+.sub-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0;
+}
+
+.sub-tab-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #6c757d;
+  transition: all 0.2s;
+}
+
+.sub-tab-btn:hover {
+  color: #495057;
+  background: #f8f9fa;
+}
+
+.sub-tab-btn.active {
+  color: #4A90D9;
+  border-bottom-color: #4A90D9;
+}
+
+.sub-tab-btn .badge {
+  background: #e9ecef;
+  color: #495057;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.sub-tab-btn.active .badge {
+  background: #4A90D9;
+  color: white;
+}
+
+/* ----- ПОЛЕ ПОИСКА С КНОПКОЙ ----- */
+.search-section {
+  margin: 16px 0 20px 0;
+}
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: border-color 0.2s;
+  min-width: 200px;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #4A90D9;
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+}
+
+.search-bar .btn {
+  padding: 10px 24px;
+  white-space: nowrap;
+}
+
+/* ----- РЕЗУЛЬТАТЫ ПОИСКА ----- */
+.search-results {
+  margin: 16px 0;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.search-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 12px 0;
+}
+
+.search-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.search-result-item:hover {
+  border-color: #dee2e6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.search-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+}
+
+.search-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #4A90D9;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.search-name {
+  font-weight: 600;
+  color: #212529;
+  font-size: 16px;
+}
+
+.search-details {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
+.search-groups {
+  display: flex;
+  gap: 4px;
+}
+
+.search-groups span {
+  font-size: 11px;
+  padding: 2px 10px;
+  background: #e9ecef;
+  border-radius: 10px;
+  color: #495057;
+}
+
+.search-wishlist {
+  font-size: 13px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+/* ----- ПУСТЫЕ СОСТОЯНИЯ ----- */
+.search-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+}
+
+.search-empty .empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.search-empty p {
+  font-size: 16px;
+  margin: 0;
+}
+
+.search-empty .empty-hint {
+  font-size: 13px;
+  color: #adb5bd;
+}
+
+.search-hint {
+  text-align: center;
+  padding: 40px 20px;
+  color: #adb5bd;
+}
+
+.search-hint .hint-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.search-hint p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* ----- АДАПТИВНОСТЬ ----- */
+@media (max-width: 600px) {
+  .search-bar {
+    flex-wrap: wrap;
+  }
+  
+  .search-bar input {
+    min-width: 100%;
+  }
+  
+  .search-bar .btn {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .search-result-item {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .search-info {
+    flex-wrap: wrap;
+  }
+  
+  .sub-tab-btn {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
+
+/* ----- ПРОФИЛЬ ДРУГА ----- */
+.profile-friend-layout {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  min-height: 500px;
+}
+
+.profile-friend-list {
+  width: 220px;
+  flex-shrink: 0;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.profile-friend-list-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6c757d;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 8px;
+}
+
+.profile-friend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #212529;
+}
+
+.profile-friend-item:hover {
+  background: #e9ecef;
+}
+
+.profile-friend-item.active {
+  background: #e9ecef;
+  font-weight: 600;
+}
+
+.profile-friend-empty {
+  text-align: center;
+  color: #adb5bd;
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+.pf-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.pf-name {
+  flex: 1;
+  text-align: left;
+}
+
+.pf-check {
+  color: #28a745;
+  font-weight: 700;
+}
+
+.profile-friend-content {
+  flex: 1;
+}
+
+.profile-friend-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 16px;
+}
+
+.profile-friend-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 32px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.profile-friend-info {
+  flex: 1;
+}
+
+.profile-friend-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #212529;
+}
+
+.profile-friend-birth {
+  font-size: 15px;
+  color: #495057;
+  margin-top: 4px;
+}
+
+.profile-friend-days {
+  display: inline-block;
+  margin-left: 12px;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #e9ecef;
+  color: #495057;
+}
+
+.profile-friend-days.urgent {
+  background: #ff6b6b;
+  color: white;
+}
+
+.profile-friend-groups {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.profile-friend-groups .group-tag {
+  font-size: 12px;
+  padding: 3px 12px;
+  background: #e9ecef;
+  border-radius: 12px;
+  color: #495057;
+}
+
+.profile-friend-actions {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-friend-wishlist {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.profile-friend-wishlist-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 12px 0;
+}
+
+.profile-friend-wishlist-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-friend-wishlist-list li {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f3f5;
+  font-size: 14px;
+  color: #212529;
+}
+
+.profile-friend-wishlist-list li:last-child {
+  border-bottom: none;
+}
+
+.profile-friend-wishlist-empty {
+  text-align: center;
+  padding: 20px;
+  color: #adb5bd;
+}
+
+.profile-friend-chat {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  padding: 16px 20px;
+}
+
+.profile-friend-chat-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 12px 0;
+}
+
+/* ----- АДАПТИВНОСТЬ ----- */
+@media (max-width: 768px) {
+  .profile-friend-layout {
+    flex-direction: column;
+  }
+  
+  .profile-friend-list {
+    width: 100%;
+    max-height: 200px;
+  }
+  
+  .profile-friend-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .profile-friend-actions {
+    flex-direction: column;
+  }
+  
+  .profile-friend-actions .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* styles.css (добавить в конец) */
+
+/* ----- ВИШЛИСТ В АККАУНТЕ ----- */
+.wishlist-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+  min-height: 40px;
+}
+
+.wishlist-chip {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+}
+
+.wishlist-chip button {
+  background: none;
+  border: none;
+  color: #856404;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 6px;
+  padding: 0 2px;
+}
+
+.wishlist-chip button:hover {
+  color: #dc3545;
+}
+
+.add-wishlist-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.add-wishlist-row input {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.add-wishlist-row input:focus {
+  outline: none;
+  border-color: #4A90D9;
+}
+
+/* styles.css */
+
+/* ----- ВИШЛИСТ В КАРТОЧКЕ ПРОФИЛЯ ----- */
+.p-wishlist {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 13px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.p-wishlist strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #495057;
+}
+
+.p-wishlist .wishlist-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.p-wishlist .wishlist-item {
+  display: inline-block;
+  background: #fff3cd;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #856404;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  box-sizing: border-box;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.p-wishlist .wishlist-empty {
+  color: #aaa;
+  font-size: 12px;
+}
+
+/* ----- АДАПТИВНОСТЬ ----- */
+@media (max-width: 600px) {
+  .add-wishlist-row {
+    flex-direction: column;
+  }
+  
+  .add-wishlist-row input {
+    width: 100%;
+  }
+  
+  .add-wishlist-row .btn {
+    width: 100%;
+  }
+}
+
+/* styles.css (добавить в конец) */
+
+/* ----- МОДАЛЬНОЕ ОКНО ----- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 32px 28px 28px 28px;
+  position: relative;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: #f1f3f5;
+  color: #212529;
+}
+
+/* ----- ПРОФИЛЬ В МОДАЛЬНОМ ОКНЕ ----- */
+.modal-friend-profile {
+  padding: 4px 0;
+}
+
+.modal-friend-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 16px;
+}
+
+.modal-friend-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 28px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.modal-friend-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-friend-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #212529;
+}
+
+.modal-friend-birth {
+  font-size: 14px;
+  color: #495057;
+  margin-top: 2px;
+}
+
+.modal-friend-days {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 1px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #e9ecef;
+  color: #495057;
+}
+
+.modal-friend-days.urgent {
+  background: #ff6b6b;
+  color: white;
+}
+
+.modal-friend-groups {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.modal-friend-groups .group-tag {
+  font-size: 11px;
+  padding: 2px 10px;
+  background: #e9ecef;
+  border-radius: 10px;
+  color: #495057;
+}
+
+.modal-friend-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.modal-friend-actions .btn {
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+.modal-friend-wishlist {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.modal-friend-wishlist-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 8px 0;
+}
+
+.modal-friend-wishlist-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-friend-wishlist-list li {
+  padding: 4px 0;
+  font-size: 14px;
+  color: #212529;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-friend-wishlist-list li:last-child {
+  border-bottom: none;
+}
+
+.modal-friend-wishlist-empty {
+  text-align: center;
+  padding: 8px 0;
+  color: #adb5bd;
+  font-size: 14px;
+}
+
+.modal-friend-chat {
+  padding: 4px 0;
+}
+
+.modal-friend-chat-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 8px 0;
+}
+
+/* ----- АДАПТИВНОСТЬ ----- */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 95%;
+    padding: 24px 16px 20px 16px;
+    max-height: 90vh;
+  }
+  
+  .modal-friend-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .modal-friend-actions {
+    flex-direction: column;
+  }
+  
+  .modal-friend-actions .btn {
+    min-width: unset;
+    width: 100%;
+  }
+  
+  .modal-friend-name {
+    font-size: 20px;
+  }
+}
