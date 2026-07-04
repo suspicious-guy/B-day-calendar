@@ -1,26 +1,3 @@
-function renderContent(skipWire){
-  const content = document.getElementById('content');
-  if(state.activeTab==='account') content.innerHTML = renderAccount();
-  else if(state.activeTab==='chats') content.innerHTML = renderChats();
-  else if(state.activeTab==='friends') content.innerHTML = renderFriends();
-  else content.innerHTML = renderNotifications();
-
-  if(!skipWire){
-    if(state.activeTab==='account') wireAccount();
-    if(state.activeTab==='chats') wireChats();
-    if(state.activeTab==='friends') wireFriends();
-  } else {
-    if(state.activeTab==='friends') wireFriends();
-    if(state.activeTab==='chats') wireChats();
-  }
-}
-
-function render(){
-  renderTodayCard();
-  renderTabs();
-  renderContent();
-}
-
 document.getElementById('tabs').addEventListener('click', async e => {
   const btn = e.target.closest('.tab-btn');
   if (!btn) return;
@@ -110,14 +87,6 @@ document.getElementById('content').addEventListener('click', async e => { // д�
       renderContent(true);
     }
   } 
-  else if (action === 'discuss-gift') {
-    openOrCreateChatForFriend(el.dataset.id);
-  } 
-  else if (action === 'filter-alpha') {
-    state.friendFilter = 'alpha';
-    persist();
-    renderContent(true);
-  }
   else if (action === 'filter-alpha') {
     state.friendFilter = 'alpha';
     persist();
@@ -238,6 +207,141 @@ document.getElementById('content').addEventListener('click', async e => { // д�
     refreshNotifications();
     renderContent();
     showToast('🔄 Уведомления обновлены', 'success');
+  }
+  else if (action === 'open-admin') {
+    openAdminModal();
+  }
+  else if (action === 'admin-toggle-role') {
+    const login = el.dataset.login;
+    const user = state.users.find(u => u.login === login);
+    if (user && user.login !== state.currentLogin) {
+      user.isAdmin = !user.isAdmin;
+      persist();
+      document.getElementById('adminModalBody').innerHTML = renderAdminModal();
+      showToast(`✅ ${user.isAdmin ? 'Админ' : 'Пользователь'} — права обновлены`);
+    }
+  }
+  else if (action === 'admin-delete-user') {
+    const login = el.dataset.login;
+    if (login === state.currentLogin) {
+      showToast('❌ Нельзя удалить самого себя', 'error');
+      return;
+    }
+    const user = state.users.find(u => u.login === login);
+    if (!user) return;
+    
+    if (confirm(`Удалить пользователя "${user.name || login}"?`)) {
+      state.users = state.users.filter(u => u.login !== login);
+      state.friends = state.friends.filter(f => f.login !== login);
+      state.allUsers = state.allUsers.filter(u => u.login !== login);
+      persist();
+      document.getElementById('adminModalBody').innerHTML = renderAdminModal();
+      showToast(`✅ Пользователь удалён`);
+    }
+  }
+  else if (action === 'admin-delete-group') {
+  
+  const groupId = el.dataset.id;
+  console.log('ID группы:', groupId);
+  console.log('Все группы:', state.groups);
+  
+  // Ищем группу по id
+  const group = state.groups.find(g => g.id === groupId);
+  console.log('Найдена группа:', group);
+  
+  if (!group) {
+    showToast('❌ Группа не найдена', 'error');
+    return;
+  }
+  
+  if (confirm(`Удалить группу "${group.name}"?`)) {
+    // Удаляем из state.groups
+    state.groups = state.groups.filter(g => g.id !== groupId);
+    console.log('Группы после удаления:', state.groups);
+    
+    // Удаляем из user.groups (если есть)
+    state.user.groups = state.user.groups.filter(g => g !== group.name);
+    
+    // Сохраняем
+    persist();
+    
+    // Обновляем админку
+    const body = document.getElementById('adminModalBody');
+    if (body) {
+      body.innerHTML = renderAdminModal();
+    }
+    
+    showToast(`✅ Группа "${group.name}" удалена`);
+  }
+}
+  else if (action === 'admin-import-csv') {
+    const fileInput = document.getElementById('csvFile');
+    const file = fileInput?.files?.[0];
+    if (!file) {
+      showToast('❌ Выберите CSV-файл', 'error');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const lines = text.split('\n').filter(line => line.trim());
+      let imported = 0;
+      
+      lines.forEach(line => {
+        const parts = line.split(',').map(s => s.trim());
+        if (parts.length >= 3) {
+          const login = parts[0];
+          const password = parts[1];
+          const name = parts[2];
+          const birthdate = parts[3] || '2000-01-01';
+          
+          if (login && password && name && !state.users.find(u => u.login === login)) {
+            state.users.push({ login, password, name, birthdate, isAdmin: false });
+            if (!state.allUsers.find(u => u.login === login)) {
+              state.allUsers.push({
+                id: 'u-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+                login: login,
+                name: name,
+                birthdate: birthdate,
+                groups: [],
+                wishlist: [],
+                color: '#' + Math.floor(Math.random()*16777215).toString(16)
+              });
+            }
+            imported++;
+          }
+        }
+      });
+      
+      persist();
+      document.getElementById('adminModalBody').innerHTML = renderAdminModal();
+      showToast(`✅ Импортировано ${imported} пользователей`);
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+  else if (action === 'admin-clear-all') {
+    if (confirm('⚠️ Удалить все данные? Это действие необратимо!')) {
+      if (confirm('Точно удалить всех пользователей, друзей, чаты и группы?')) {
+        state.users = [{ 
+          login: state.currentLogin, 
+          password: 'admin', 
+          name: state.user.name, 
+          birthdate: state.user.birthdate,
+          isAdmin: true 
+        }];
+        state.friends = [];
+        state.allUsers = [];
+        state.groups = [];
+        state.chats = [];
+        state.notifications = [];
+        state.user.groups = [];
+        state.user.wishlist = [];
+        persist();
+        document.getElementById('adminModalBody').innerHTML = renderAdminModal();
+        showToast('🗑️ Все данные очищены');
+      }
+    }
   }
 });
 
@@ -562,5 +666,175 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 initAuth();
-loadState();
 
+// админовская часть
+
+function openAdminModal() {
+  const modal = document.getElementById('adminModal');
+  const body = document.getElementById('adminModalBody');
+  
+  if (!modal || !body) return;
+  
+  body.innerHTML = renderAdminModal();
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdminModal() {
+  const modal = document.getElementById('adminModal');
+  if (!modal) return;
+  
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('closeAdminModal')?.addEventListener('click', closeAdminModal);
+
+document.getElementById('adminModal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeAdminModal();
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeAdminModal();
+  }
+});
+
+function renderAdminModal() {
+  if (state.user.isAdmin !== true) {
+    return `
+      <div style="text-align:center;padding:40px;">
+        <h2>⛔ Доступ запрещён</h2>
+        <p>У вас нет прав администратора.</p>
+      </div>
+    `;
+  }
+
+  const usersList = state.users || [];
+  const usersHtml = usersList.map(u => `
+    <tr>
+      <td><strong>${escapeHtml(u.login)}</strong></td>
+      <td>${escapeHtml(u.name || '—')}</td>
+      <td>${u.birthdate ? formatBirthdayFull(u.birthdate) : '—'}</td>
+      <td>
+        ${u.isAdmin 
+          ? '<span class="admin-badge">👑 Админ</span>' 
+          : '<span class="user-badge">👤 Пользователь</span>'}
+      </td>
+      <td>
+        ${u.login !== state.currentLogin ? `
+          <button class="btn btn-small ${u.isAdmin ? 'btn-ghost' : 'btn-sage'}" 
+                  data-action="admin-toggle-role" data-login="${u.login}">
+            ${u.isAdmin ? 'Снять админа' : 'Сделать админом'}
+          </button>
+          <button class="btn btn-small btn-danger" 
+                  data-action="admin-delete-user" data-login="${u.login}">
+            ✕
+          </button>
+        ` : '<span style="color:#888;font-size:12px;">Это вы</span>'}
+      </td>
+    </tr>
+  `).join('');
+
+  const groupsList = state.groups || [];
+  const groupsHtml = groupsList.map(g => `
+    <tr>
+      <td>${escapeHtml(g.name)}</td>
+      <td>${g.members ? g.members.length : 0}</td>
+      <td>
+        <button class="btn btn-small btn-danger" 
+                data-action="admin-delete-group" data-id="${g.id}">
+          ✕ Удалить
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="admin-modal-content">
+      <h2 class="admin-modal-title">⚙️ Админ-панель</h2>
+      <p class="admin-modal-desc">Управление пользователями, группами и данными системы.</p>
+
+      <!-- СТАТИСТИКА -->
+      <div class="admin-stats">
+        <div class="stat-card">
+          <span class="stat-number">${usersList.length}</span>
+          <span class="stat-label">Пользователей</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">${state.friends ? state.friends.length : 0}</span>
+          <span class="stat-label">Друзей</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">${groupsList.length}</span>
+          <span class="stat-label">Групп</span>
+        </div>
+      </div>
+
+      <!-- ПОЛЬЗОВАТЕЛИ -->
+      <div class="admin-section">
+        <h3 class="admin-section-title">👥 Пользователи (${usersList.length})</h3>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Логин</th>
+                <th>Имя</th>
+                <th>Дата рождения</th>
+                <th>Роль</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${usersHtml || '<tr><td colspan="5">Нет пользователей</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ГРУППЫ -->
+      <div class="admin-section">
+        <h3 class="admin-section-title">📂 Группы (${groupsList.length})</h3>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Название</th>
+                <th>Участников</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${groupsHtml || '<tr><td colspan="3">Нет групп</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ИМПОРТ -->
+      <div class="admin-section">
+        <h3 class="admin-section-title">📥 Импорт пользователей</h3>
+        <p class="admin-hint">Загрузите CSV-файл с пользователями (логин, пароль, имя, дата рождения)</p>
+        <div class="admin-import-row">
+          <input type="file" id="csvFile" accept=".csv">
+          <button class="btn btn-primary btn-small" data-action="admin-import-csv">
+            📤 Импортировать
+          </button>
+        </div>
+      </div>
+
+      <!-- ОЧИСТКА ДАННЫХ -->
+      <div class="admin-section admin-danger">
+        <h3 class="admin-section-title" style="color:#dc3545;">⚠️ Опасные действия</h3>
+        <button class="btn btn-danger" data-action="admin-clear-all">
+          🗑️ Очистить все данные
+        </button>
+        <span style="font-size:12px;color:#888;margin-left:12px;">Удаляет всех пользователей, друзей, чаты и группы</span>
+      </div>
+    </div>
+  `;
+}
+
+loadState();

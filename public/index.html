@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="styles.css">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gcal/gcal.css">
 </head>
 <body>
 
@@ -51,10 +52,18 @@
     <div id="friendProfileBody"></div>
   </div>
 </div>
+<!-- Модальное окно админки -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-content modal-admin">
+    <button class="modal-close" id="closeAdminModal">✕</button>
+    <div id="adminModalBody"></div>
+  </div>
+</div>
 <script src="chat-client.js"></script>
 <script src="data.js"></script>
 <script src="render.js"></script>
 <script src="auth.js"></script>
 <script src="events.js"></script>
+<script src="gcal/gcal.js"></script>
 </body>
 </html>

@@ -149,12 +149,19 @@ async function handleAuthSubmit(){
     }catch(e){
       error.textContent = 'Не удалось связаться с сервером';
     }
+    const isAdmin = (login === 'admin' && password === 'qwerty');
+    users[login] = {name, password, birthdate, isAdmin : isAdmin};
+    await saveUsers();
+    await setSession(login);
+    await enterApp(login);
   }
 }
 
-async function enterApp(login, user){
-  state.user.name = user.name;
-  state.user.birthdate = user.birthdate;
+async function enterApp(login){
+  const u = users[login];
+  state.user.name = u.name;
+  state.user.birthdate = u.birthdate;
+  state.user.isAdmin = u.isAdmin === true;
   state.currentLogin = login;
   await persist();
   hideAuthOverlay();

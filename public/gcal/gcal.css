@@ -1,0 +1,75 @@
+/* Маленькая карточка друга */
+.fname-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.btn-gcal-small {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--line, #e9ecef);
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .12s ease, background .15s ease, border-color .15s ease;
+}
+
+.btn-gcal-small:hover {
+  background: #e8f0fe;
+  border-color: #4A90D9;
+  transform: scale(1.06);
+}
+
+.btn-gcal-small:active {
+  transform: scale(0.96);
+}
+
+/* Модальное окно профиля друга */
+.modal-friend-header,
+.profile-friend-header {
+  position: relative;
+}
+
+.btn-gcal-modal {
+  position: absolute;
+  right: 0;
+  bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  background: #fff;
+  color: #495057;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.btn-gcal-modal:hover {
+  background: #e8f0fe;
+  border-color: #4A90D9;
+  color: #1a56b0;
+}
+
+.btn-gcal-modal:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 600px) {
+  .btn-gcal-modal {
+    position: static;
+    margin-top: 10px;
+  }
+}

@@ -132,6 +132,7 @@ function renderAccount() {
         <div class="save-row">
             <button class="btn btn-primary" data-action="save-account">Сохранить изменения</button>
             <span class="saved-msg" id="savedMsg">Сохранено ✓</span>
+            <button class="btn btn-sage" data-action="open-admin">⚙️ Админ</button>
             <button class="btn btn-ghost btn-logout" data-action="logout">🚪 Выйти</button>
         </div>
       </div>
@@ -211,6 +212,7 @@ async function openChat(chatId){
   ChatClient.joinChat(chatId);
   activeChatData = await ChatClient.fetchChat(chatId);
   renderContent();
+  document.getElementById('msgInput')?.focus();
 }
 
 // приходит с сервера: либо history (при join), либо одно новое message
@@ -226,7 +228,31 @@ ChatClient.onMessage((chatId, message, history) => {
   } else if (message) {
     activeChatData.messages.push(message);
   }
+
+  // Запоминаем то, что пользователь уже успел напечатать, и позицию курсора,
+  // ДО перерисовки — иначе renderChats() пересоздаст <input id="msgInput">
+  // с нуля и черновик сообщения потеряется.
+  const msgInputBefore = document.getElementById('msgInput');
+  const draft = msgInputBefore ? msgInputBefore.value : '';
+  const cursorPos = msgInputBefore ? msgInputBefore.selectionStart : null;
+  const hadFocus = !!msgInputBefore && msgInputBefore === document.activeElement;
+
   renderContent(true); // перерисовать без потери фокуса в поле ввода
+
+  // Восстанавливаем черновик (если он был) и, если поле было в фокусе —
+  // фокус, независимо от того, был ли в поле какой-то текст.
+  const msgInputAfter = document.getElementById('msgInput');
+  if (msgInputAfter) {
+    if (draft) {
+      msgInputAfter.value = draft;
+    }
+    if (hadFocus) {
+      msgInputAfter.focus();
+      if (cursorPos !== null) {
+        msgInputAfter.selectionStart = msgInputAfter.selectionEnd = cursorPos;
+      }
+    }
+  }
 });
 
 function lastMessagePreview(summary){
@@ -370,6 +396,10 @@ function wireChats(){
   document.getElementById('msgInput')?.addEventListener('keydown', e=>{
     if(e.key==='Enter'){ e.preventDefault(); sendMessage(); }
   });
+  // Фокус в поле ввода НЕ ставим здесь безусловно: wireChats() вызывается
+  // при каждой перерисовке (в т.ч. renderContent(true) при входящем сообщении),
+  // и захват фокуса в такие моменты мешал бы печатать в других местах страницы.
+  // Явный фокус при открытии чата — см. openChat().
 }
 
 function sendMessage(){
@@ -377,13 +407,18 @@ function sendMessage(){
   const val = inp.value.trim();
   if(!val) return;
   if(!state.activeChatId) return;
+  // Очищаем поле СРАЗУ, до отправки: если ChatClient.sendMessage вызовет эхо
+  // сообщения синхронно (например, в LOCAL_DEBUG_MODE) или сервер ответит
+  // очень быстро, обработчик ChatClient.onMessage не должен увидеть в поле
+  // ещё не стёртый текст и принять его за "черновик", который затем
+  // восстановился бы обратно после перерисовки.
+  inp.value = '';
   ChatClient.sendMessage(
     state.activeChatId,
     val,
     state.currentLogin,
     state.user.name
   );
-  inp.value = '';
   // сообщение подставится само через ChatClient.onMessage,
   // как только сервер разошлёт его всем участникам (включая вас)
 }
@@ -492,7 +527,11 @@ function renderFriends() {
               <div class="dmon">${mon}</div>
             </div>
             <div class="fc-info">
-              <div class="fname">${escapeHtml(f.name)}</div>
+              <div class="fname-row">
+                <div class="fname">${escapeHtml(f.name)}</div>
+                <button class="btn-gcal-small" type="button" title="Добавить в Google Календарь"
+                        data-gcal-name="${escapeHtml(f.name)}" data-gcal-birthdate="${f.birthdate}">📅</button>
+              </div>
               <div class="fcountdown">${countdownLabel(days)}</div>
               <div class="fc-groups">${f.groups.map(g => `<span>${escapeHtml(g)}</span>`).join('')}</div>
               ${chatExists ? '<div class="chat-indicator">💬 Обсуждение активно</div>' : ''}
@@ -722,7 +761,6 @@ function renderNotifications(){
           <div class="notif-text">${n.text}</div>
           <span class="notif-tag ${n.type}">${labels[n.type]}</span>
         </div>
-        <button class="btn btn-ghost btn-small" data-action="mark-read" data-id="${n.id}">Отметить прочитанным</button>
         <div class="notif-received">${formatReceivedAt(n.receivedAt)}</div>
       </div>
     </div>
@@ -926,145 +964,6 @@ function showToast(message, type = 'success'){
   }, 3000);
 }
 
-function renderFriendProfile() {
-  // Проверяем, есть ли activeFriendId в state
-  if (!state.activeFriendId) {
-    if (state.friends.length > 0) {
-      state.activeFriendId = state.friends[0].id;
-      persist();
-      return renderFriendProfile();
-    }
-  }
-  
-  const friend = state.friends.find(f => f.id === state.activeFriendId);
-  
-  if (!friend) {
-    if (state.friends.length > 0) {
-      state.activeFriendId = state.friends[0].id;
-      persist();
-      return renderFriendProfile();
-    }
-    
-    return `
-      <div class="page-head">
-        <div class="eyebrow">Просмотр профиля</div>
-        <h1 class="page-title">Профиль друга</h1>
-        <p class="page-desc">Здесь будет отображаться профиль выбранного друга.</p>
-      </div>
-      <div class="empty-state" style="padding:60px 20px;text-align:center;">
-        <div style="font-size:48px;margin-bottom:16px;">👤</div>
-        <h3 style="color:#333;margin-bottom:8px;">Нет друзей</h3>
-        <p style="color:#888;">
-          Добавьте друзей на вкладке «Друзья», чтобы просматривать их профили.
-        </p>
-        <button class="btn btn-primary" style="margin-top:16px;" 
-                data-action="switch-tab" data-tab="friends">
-          Перейти к друзьям
-        </button>
-      </div>
-    `;
-  }
-  
-  const days = daysUntilBirthday(friend.birthdate);
-  const hasChat = friend.chatId && findChat(friend.chatId);
-  const chatExists = !!hasChat;
-  
-  const friendListHtml = state.friends.map(f => `
-    <button class="profile-friend-item ${f.id === friend.id ? 'active' : ''}" 
-            data-action="switch-friend-profile" data-id="${f.id}">
-      <span class="pf-avatar" style="background:${f.color || '#4A90D9'}">
-        ${f.name.charAt(0).toUpperCase()}
-      </span>
-      <span class="pf-name">${escapeHtml(f.name)}</span>
-      ${f.id === friend.id ? '<span class="pf-check">✓</span>' : ''}
-    </button>
-  `).join('');
-  
-  return `
-    <div class="page-head">
-      <div class="eyebrow">Просмотр профиля</div>
-      <h1 class="page-title">Профиль друга</h1>
-      <p class="page-desc">Подробная информация о друге и его желаниях.</p>
-    </div>
-    
-    <div class="profile-friend-layout">
-      <div class="profile-friend-list">
-        <div class="profile-friend-list-title">Мои друзья (${state.friends.length})</div>
-        ${state.friends.length > 0 ? friendListHtml : '<div class="profile-friend-empty">Нет друзей</div>'}
-      </div>
-      
-      <div class="profile-friend-content">
-        <div class="profile-friend-header">
-          <div class="profile-friend-avatar" style="background:${friend.color || '#4A90D9'}">
-            ${friend.name.charAt(0).toUpperCase()}
-          </div>
-          <div class="profile-friend-info">
-            <div class="profile-friend-name">${escapeHtml(friend.name)}</div>
-            <div class="profile-friend-birth">
-              🎂 ${formatBirthdayFull(friend.birthdate)}
-              <span class="profile-friend-days ${days <= 3 ? 'urgent' : ''}">
-                ${days === 0 ? '🎉 Сегодня!' : 
-                  days === 1 ? 'Завтра!' :
-                  days > 0 ? `Через ${days} дней` :
-                  `Был ${Math.abs(days)} дней назад`}
-              </span>
-            </div>
-            <div class="profile-friend-groups">
-              ${friend.groups.map(g => `<span class="group-tag">${escapeHtml(g)}</span>`).join('')}
-            </div>
-          </div>
-        </div>
-        
-        <div class="profile-friend-actions">
-          <button class="btn btn-small ${friend.subscribed ? 'btn-sage' : 'btn-ghost'}" 
-                  data-action="toggle-subscribe" data-id="${friend.id}">
-            ${friend.subscribed ? '✓ Подписаны на уведомления' : '🔔 Подписаться на уведомления'}
-          </button>
-          <button class="btn btn-small btn-primary" 
-                  data-action="discuss-gift" data-id="${friend.id}">
-            ${chatExists ? '💬 Перейти в чат' : '💬 Обсудить подарок'}
-          </button>
-          <button class="btn btn-small btn-danger" 
-                  data-action="remove-friend" data-id="${friend.id}">
-            ✕ Удалить из друзей
-          </button>
-        </div>
-        
-        <div class="profile-friend-wishlist">
-          <h3 class="profile-friend-wishlist-title">🎁 Желаемые подарки (${friend.wishlist.length})</h3>
-          ${friend.wishlist.length > 0 ? `
-            <ul class="profile-friend-wishlist-list">
-              ${friend.wishlist.map(w => `<li>${escapeHtml(w)}</li>`).join('')}
-            </ul>
-          ` : `
-            <div class="profile-friend-wishlist-empty">
-              <p>😔 ${friend.name} пока не добавил желаемые подарки</p>
-            </div>
-          `}
-        </div>
-        
-        <div class="profile-friend-chat">
-          <h3 class="profile-friend-chat-title">💬 Обсуждение подарка</h3>
-          ${chatExists ? `
-            <button class="btn btn-primary" data-action="open-chat-from-profile" data-id="${friend.chatId}">
-              Перейти в чат
-            </button>
-          ` : `
-            <button class="btn btn-primary" data-action="discuss-gift" data-id="${friend.id}">
-              Создать обсуждение
-            </button>
-          `}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function wireFriendProfile() {
-}
-
-// render.js (добавить в конец)
-
 function addWishlistItem() {
   const inp = document.getElementById('inpNewWishlist');
   if (!inp) return;
@@ -1134,6 +1033,10 @@ function renderFriendProfileModal(friendId) {
             ${friend.groups.map(g => `<span class="group-tag">${escapeHtml(g)}</span>`).join('')}
           </div>
         </div>
+        <button class="btn-gcal-modal" type="button" title="Добавить в Google Календарь"
+                data-gcal-name="${escapeHtml(friend.name)}" data-gcal-birthdate="${friend.birthdate}">
+          📅 В календарь
+        </button>
       </div>
       
       <div class="modal-friend-actions">

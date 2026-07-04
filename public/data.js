@@ -5,8 +5,6 @@ const MONTHS_FULL = ['января','февраля','марта','апреля'
 const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const NOTIF_THRESHOLDS = [30, 14, 7, 3, 0];
 
-// data.js
-
 function seedState(){
   return {
     activeTab: 'account',
@@ -16,6 +14,7 @@ function seedState(){
     friendSearch: '',
     searchQuery: '',        
     friendSubTab: 'my', 
+    isAdmin: false,
     user: {
       id: 'current-user',
       name: '',          
@@ -23,17 +22,15 @@ function seedState(){
       groups: [],
       wishlist: [] 
     },
-    groups: [                    // ← все группы в системе
+    groups: [               
       {id: 'group-1', name: 'ТГУ 972501', members: ['current-user', 'f2', 'f3', 'f4']},
       {id: 'group-2', name: 'Сборная по волейболу', members: ['f1', 'f5']}
     ],
-    // 🔥 ВАЖНО: друзей больше нет в начальном состоянии!
-    friends: [],                 // ← ПУСТОЙ массив друзей
+    friends: [],               
     
-    // Все пользователи системы (для поиска)
     allUsers: [               
       {id:'f1', name:'Никита Орлов', birthdate:'2002-07-05', groups:['Сборная по волейболу'], wishlist:['Кроссовки для зала','Спортивный термос'], color:'#E8734A'},
-      {id:'f2', name:'Иван Петров', birthdate:'2003-07-10', groups:['ТГУ 972501'], wishlist:['Наушники Sony','Книга «Атомные привычки»'], color:'#6E8F74'},
+      {id:'f2', name:'Иван Петров', birthdate:'2003-07-04', groups:['ТГУ 972501'], wishlist:['Наушники Sony','Книга «Атомные привычки»'], color:'#6E8F74'},
       {id:'f3', name:'Ольга Смирнова', birthdate:'2003-08-02', groups:['ТГУ 972501'], wishlist:['Плед','Набор для рисования'], color:'#D9A441'},
       {id:'f4', name:'Дмитрий Волков', birthdate:'2004-01-15', groups:['ТГУ 972501'], wishlist:['Механическая клавиатура'], color:'#4C6E8F'},
       {id:'f5', name:'Мария Соколова', birthdate:'1998-12-25', groups:['Сборная по волейболу'], wishlist:['Форма для волейбола','Сертификат'], color:'#A35FA3'},
@@ -51,7 +48,6 @@ function seedState(){
 
 let state = seedState();
 
-// data.js
 
 async function loadState() {
   try {
@@ -63,6 +59,9 @@ async function loadState() {
         parsed.activeFriendId = null;
       }
       state = Object.assign(seedState(), parsed);
+      if (parsed.user) {
+        state.user.isAdmin = parsed.user.isAdmin === true;
+      }
     }
   } catch (e) {
     // нет сохранённых данных - используем seed
