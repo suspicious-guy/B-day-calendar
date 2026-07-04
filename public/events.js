@@ -304,6 +304,7 @@ function wireChats() {
         sendMessage();
       }
     });
+    msgInput.focus();
   }
 }
 

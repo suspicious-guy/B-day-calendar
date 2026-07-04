@@ -1,9 +1,9 @@
 (function () {
-  // === ПЕРЕКЛЮЧАТЕЛЬ ДЛЯ ДЕБАГА ===
-  // true  -> чаты берутся из локального chats.json, без сервера и WebSocket
-  // false -> обычный режим, как было (сервер + WS)
-  const LOCAL_DEBUG_MODE = true;
-  const LOCAL_CHATS_URL = 'chats.json'; // путь к файлу рядом с index.html
+  // ПЕРЕКЛЮЧАТЕЛЬ ДЛЯ ДЕБАГА
+  // true  -> чаты берутся из локального chats.json
+  // false -> сервер + WS
+  const LOCAL_DEBUG_MODE = false;
+  const LOCAL_CHATS_URL = 'chats.json';
 
   const SERVER_URL = window.location.origin;
   const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss' : 'ws';
@@ -13,14 +13,13 @@
   let onIncomingMessage = () => {};
   const joinedRooms = new Set();
 
-  // ---------- ЛОКАЛЬНОЕ ХРАНИЛИЩЕ ЧАТОВ (для дебага) ----------
-  let localChats = null; // массив чатов, загруженный из chats.json
+  // ЛОКАЛЬНОЕ ХРАНИЛИЩЕ ЧАТОВ
+  let localChats = null;
 
   async function loadLocalChats() {
     if (localChats) return localChats;
     const res = await fetch(LOCAL_CHATS_URL);
     const raw = await res.json();
-    // нормализуем структуру, чтобы совпадала с тем, что ждёт render.js
     localChats = raw.map(c => ({
       ...c,
       members: c.members || c.participants || [],
@@ -35,9 +34,9 @@
     return (localChats || []).find(c => c.id === chatId);
   }
 
-  // ---------- СЕТЕВАЯ ЧАСТЬ (как было) ----------
+  // СЕТЕВАЯ ЧАСТЬ
   function connect() {
-    if (LOCAL_DEBUG_MODE) return; // в дебаг-режиме сокет вообще не поднимаем
+    if (LOCAL_DEBUG_MODE) return;
     if (socket && socket.readyState === WebSocket.OPEN) return;
     socket = new WebSocket(WS_URL);
 
@@ -72,7 +71,6 @@
     async fetchChats() {
       if (LOCAL_DEBUG_MODE) {
         const chats = await loadLocalChats();
-        // отдаём "сводку", как раньше отдавал сервер
         return chats.map(c => ({
           id: c.id,
           type: c.type,
@@ -114,7 +112,7 @@
 
     joinChat(chatId) {
       joinedRooms.add(chatId);
-      if (LOCAL_DEBUG_MODE) return; // локально комнаты не нужны
+      if (LOCAL_DEBUG_MODE) return;
       if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: 'join', chatId }));
       }
@@ -141,7 +139,6 @@
         };
         chat.messages.push(message);
         chat.lastMessage = message;
-        // имитируем то, что раньше присылал сервер по WS
         onIncomingMessage(chatId, message);
         return;
       }
