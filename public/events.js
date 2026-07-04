@@ -1,26 +1,3 @@
-function renderContent(skipWire){
-  const content = document.getElementById('content');
-  if(state.activeTab==='account') content.innerHTML = renderAccount();
-  else if(state.activeTab==='chats') content.innerHTML = renderChats();
-  else if(state.activeTab==='friends') content.innerHTML = renderFriends();
-  else content.innerHTML = renderNotifications();
-
-  if(!skipWire){
-    if(state.activeTab==='account') wireAccount();
-    if(state.activeTab==='chats') wireChats();
-    if(state.activeTab==='friends') wireFriends();
-  } else {
-    if(state.activeTab==='friends') wireFriends();
-    if(state.activeTab==='chats') wireChats();
-  }
-}
-
-function render(){
-  renderTodayCard();
-  renderTabs();
-  renderContent();
-}
-
 document.getElementById('tabs').addEventListener('click', async e => {
   const btn = e.target.closest('.tab-btn');
   if (!btn) return;
@@ -439,7 +416,6 @@ function wireChats() {
         sendMessage();
       }
     });
-    msgInput.focus();
   }
 }
 
@@ -698,7 +674,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 initAuth();
-loadState();
 
 // админовская часть
 
@@ -869,3 +844,5 @@ function renderAdminModal() {
     </div>
   `;
 }
+
+loadState();

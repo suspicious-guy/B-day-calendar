@@ -212,6 +212,7 @@ async function openChat(chatId){
   ChatClient.joinChat(chatId);
   activeChatData = await ChatClient.fetchChat(chatId);
   renderContent();
+  document.getElementById('msgInput')?.focus();
 }
 
 // приходит с сервера: либо history (при join), либо одно новое message
@@ -227,7 +228,28 @@ ChatClient.onMessage((chatId, message, history) => {
   } else if (message) {
     activeChatData.messages.push(message);
   }
+
+  // Запоминаем то, что пользователь уже успел напечатать, и позицию курсора,
+  // ДО перерисовки — иначе renderChats() пересоздаст <input id="msgInput">
+  // с нуля и черновик сообщения потеряется.
+  const msgInputBefore = document.getElementById('msgInput');
+  const draft = msgInputBefore ? msgInputBefore.value : '';
+  const cursorPos = msgInputBefore ? msgInputBefore.selectionStart : null;
+  const hadFocus = !!msgInputBefore && msgInputBefore === document.activeElement;
+
   renderContent(true); // перерисовать без потери фокуса в поле ввода
+
+  // Восстанавливаем черновик и, если поле было в фокусе, фокус с курсором
+  const msgInputAfter = document.getElementById('msgInput');
+  if (msgInputAfter && draft) {
+    msgInputAfter.value = draft;
+    if (hadFocus) {
+      msgInputAfter.focus();
+      if (cursorPos !== null) {
+        msgInputAfter.selectionStart = msgInputAfter.selectionEnd = cursorPos;
+      }
+    }
+  }
 });
 
 function lastMessagePreview(summary){
@@ -371,6 +393,10 @@ function wireChats(){
   document.getElementById('msgInput')?.addEventListener('keydown', e=>{
     if(e.key==='Enter'){ e.preventDefault(); sendMessage(); }
   });
+  // Фокус в поле ввода НЕ ставим здесь безусловно: wireChats() вызывается
+  // при каждой перерисовке (в т.ч. renderContent(true) при входящем сообщении),
+  // и захват фокуса в такие моменты мешал бы печатать в других местах страницы.
+  // Явный фокус при открытии чата — см. openChat().
 }
 
 function sendMessage(){
