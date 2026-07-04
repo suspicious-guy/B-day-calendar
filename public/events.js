@@ -271,18 +271,40 @@ document.getElementById('content').addEventListener('click', async e => { // д�
     }
   }
   else if (action === 'admin-delete-group') {
-    const groupId = el.dataset.id;
-    const group = state.groups.find(g => g.id === groupId);
-    if (!group) return;
-    
-    if (confirm(`Удалить группу "${group.name}"?`)) {
-      state.groups = state.groups.filter(g => g.id !== groupId);
-      state.user.groups = state.user.groups.filter(g => g !== group.name);
-      persist();
-      document.getElementById('adminModalBody').innerHTML = renderAdminModal();
-      showToast(`✅ Группа удалена`);
-    }
+  
+  const groupId = el.dataset.id;
+  console.log('ID группы:', groupId);
+  console.log('Все группы:', state.groups);
+  
+  // Ищем группу по id
+  const group = state.groups.find(g => g.id === groupId);
+  console.log('Найдена группа:', group);
+  
+  if (!group) {
+    showToast('❌ Группа не найдена', 'error');
+    return;
   }
+  
+  if (confirm(`Удалить группу "${group.name}"?`)) {
+    // Удаляем из state.groups
+    state.groups = state.groups.filter(g => g.id !== groupId);
+    console.log('Группы после удаления:', state.groups);
+    
+    // Удаляем из user.groups (если есть)
+    state.user.groups = state.user.groups.filter(g => g !== group.name);
+    
+    // Сохраняем
+    persist();
+    
+    // Обновляем админку
+    const body = document.getElementById('adminModalBody');
+    if (body) {
+      body.innerHTML = renderAdminModal();
+    }
+    
+    showToast(`✅ Группа "${group.name}" удалена`);
+  }
+}
   else if (action === 'admin-import-csv') {
     const fileInput = document.getElementById('csvFile');
     const file = fileInput?.files?.[0];
