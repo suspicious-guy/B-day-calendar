@@ -239,10 +239,13 @@ ChatClient.onMessage((chatId, message, history) => {
 
   renderContent(true); // перерисовать без потери фокуса в поле ввода
 
-  // Восстанавливаем черновик и, если поле было в фокусе, фокус с курсором
+  // Восстанавливаем черновик (если он был) и, если поле было в фокусе —
+  // фокус, независимо от того, был ли в поле какой-то текст.
   const msgInputAfter = document.getElementById('msgInput');
-  if (msgInputAfter && draft) {
-    msgInputAfter.value = draft;
+  if (msgInputAfter) {
+    if (draft) {
+      msgInputAfter.value = draft;
+    }
     if (hadFocus) {
       msgInputAfter.focus();
       if (cursorPos !== null) {
@@ -404,13 +407,18 @@ function sendMessage(){
   const val = inp.value.trim();
   if(!val) return;
   if(!state.activeChatId) return;
+  // Очищаем поле СРАЗУ, до отправки: если ChatClient.sendMessage вызовет эхо
+  // сообщения синхронно (например, в LOCAL_DEBUG_MODE) или сервер ответит
+  // очень быстро, обработчик ChatClient.onMessage не должен увидеть в поле
+  // ещё не стёртый текст и принять его за "черновик", который затем
+  // восстановился бы обратно после перерисовки.
+  inp.value = '';
   ChatClient.sendMessage(
     state.activeChatId,
     val,
     state.currentLogin,
     state.user.name
   );
-  inp.value = '';
   // сообщение подставится само через ChatClient.onMessage,
   // как только сервер разошлёт его всем участникам (включая вас)
 }
