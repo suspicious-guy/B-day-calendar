@@ -1,21 +1,47 @@
 (function () {
-  // Фронтенд отдаётся тем же сервером (public/), поэтому просто берём текущий origin.
-  // Работает и локально (http://localhost:3001), и на реальном сервере (https://your-domain.com).
+  // === ПЕРЕКЛЮЧАТЕЛЬ ДЛЯ ДЕБАГА ===
+  // true  -> чаты берутся из локального chats.json, без сервера и WebSocket
+  // false -> обычный режим, как было (сервер + WS)
+  const LOCAL_DEBUG_MODE = true;
+  const LOCAL_CHATS_URL = 'chats.json'; // путь к файлу рядом с index.html
+
   const SERVER_URL = window.location.origin;
   const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  // window.location.host уже включает в себя и IP/домен, и порт (например, 192.168.1.50:3001)
   const WS_URL = `${WS_PROTOCOL}://${window.location.host}/ws`;
 
   let socket = null;
   let onIncomingMessage = () => {};
   const joinedRooms = new Set();
 
+  // ---------- ЛОКАЛЬНОЕ ХРАНИЛИЩЕ ЧАТОВ (для дебага) ----------
+  let localChats = null; // массив чатов, загруженный из chats.json
+
+  async function loadLocalChats() {
+    if (localChats) return localChats;
+    const res = await fetch(LOCAL_CHATS_URL);
+    const raw = await res.json();
+    // нормализуем структуру, чтобы совпадала с тем, что ждёт render.js
+    localChats = raw.map(c => ({
+      ...c,
+      members: c.members || c.participants || [],
+      lastMessage: c.messages && c.messages.length
+        ? { ...c.messages[c.messages.length - 1], authorLogin: c.messages[c.messages.length - 1].authorLogin }
+        : null
+    }));
+    return localChats;
+  }
+
+  function findLocalChat(chatId) {
+    return (localChats || []).find(c => c.id === chatId);
+  }
+
+  // ---------- СЕТЕВАЯ ЧАСТЬ (как было) ----------
   function connect() {
+    if (LOCAL_DEBUG_MODE) return; // в дебаг-режиме сокет вообще не поднимаем
     if (socket && socket.readyState === WebSocket.OPEN) return;
     socket = new WebSocket(WS_URL);
 
     socket.addEventListener('open', () => {
-      // если пересоздали соединение, переподписываемся на комнаты
       joinedRooms.forEach(chatId => {
         socket.send(JSON.stringify({ type: 'join', chatId }));
       });
@@ -32,7 +58,6 @@
     });
 
     socket.addEventListener('close', () => {
-      // простая реконнект-логика
       setTimeout(connect, 1500);
     });
   }
@@ -40,26 +65,45 @@
   connect();
 
   window.ChatClient = {
-    // подписка на входящие сообщения / историю
     onMessage(cb) {
       onIncomingMessage = cb;
     },
 
-    // получить список чатов (для отрисовки списка слева)
     async fetchChats() {
+      if (LOCAL_DEBUG_MODE) {
+        const chats = await loadLocalChats();
+        // отдаём "сводку", как раньше отдавал сервер
+        return chats.map(c => ({
+          id: c.id,
+          type: c.type,
+          name: c.name,
+          color: c.color,
+          members: c.members,
+          friendId: c.friendId,
+          lastMessage: c.lastMessage
+        }));
+      }
       const res = await fetch(`${SERVER_URL}/api/chats`);
       return res.json();
     },
 
-    // получить полную историю чата (REST, на случай если WS ещё не готов)
     async fetchChat(chatId) {
+      if (LOCAL_DEBUG_MODE) {
+        await loadLocalChats();
+        const chat = findLocalChat(chatId);
+        return chat ? { ...chat } : null;
+      }
       const res = await fetch(`${SERVER_URL}/api/chats/${chatId}`);
       if (!res.ok) return null;
       return res.json();
     },
 
-    // создать чат (например, при "Обсудить подарок")
     async createChat(chat) {
+      if (LOCAL_DEBUG_MODE) {
+        await loadLocalChats();
+        localChats.push({ ...chat, lastMessage: chat.messages?.[chat.messages.length - 1] || null });
+        return chat;
+      }
       const res = await fetch(`${SERVER_URL}/api/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -68,9 +112,9 @@
       return res.json();
     },
 
-    // подписаться на комнату чата, чтобы получать сообщения в реальном времени
     joinChat(chatId) {
       joinedRooms.add(chatId);
+      if (LOCAL_DEBUG_MODE) return; // локально комнаты не нужны
       if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: 'join', chatId }));
       }
@@ -78,13 +122,29 @@
 
     leaveChat(chatId) {
       joinedRooms.delete(chatId);
+      if (LOCAL_DEBUG_MODE) return;
       if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: 'leave', chatId }));
       }
     },
 
-    // отправить сообщение — уйдёт всем подписанным клиентам мгновенно
     sendMessage(chatId, text, authorLogin, authorName) {
+      if (LOCAL_DEBUG_MODE) {
+        const chat = findLocalChat(chatId);
+        if (!chat) return;
+        const message = {
+          id: 'm-local-' + Date.now(),
+          authorLogin,
+          authorName,
+          text,
+          time: new Date().toISOString()
+        };
+        chat.messages.push(message);
+        chat.lastMessage = message;
+        // имитируем то, что раньше присылал сервер по WS
+        onIncomingMessage(chatId, message);
+        return;
+      }
       if (!socket || socket.readyState !== WebSocket.OPEN) return;
       socket.send(JSON.stringify({
         type: 'message',
