@@ -5,7 +5,6 @@ const MONTHS_FULL = ['января','февраля','марта','апреля'
 const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const NOTIF_THRESHOLDS = [30, 14, 7, 3, 0];
 
-// data.js
 
 function seedState(){
   return {
@@ -24,14 +23,12 @@ function seedState(){
       groups: [],
       wishlist: [] 
     },
-    groups: [                    // ← все группы в системе
+    groups: [               
       {id: 'group-1', name: 'ТГУ 972501', members: ['current-user', 'f2', 'f3', 'f4']},
       {id: 'group-2', name: 'Сборная по волейболу', members: ['f1', 'f5']}
     ],
-    // 🔥 ВАЖНО: друзей больше нет в начальном состоянии!
-    friends: [],                 // ← ПУСТОЙ массив друзей
+    friends: [],               
     
-    // Все пользователи системы (для поиска)
     allUsers: [               
       {id:'f1', name:'Никита Орлов', birthdate:'2002-07-07', groups:['Сборная по волейболу'], wishlist:['Кроссовки для зала','Спортивный термос'], color:'#E8734A'},
       {id:'f2', name:'Иван Петров', birthdate:'2003-07-10', groups:['ТГУ 972501'], wishlist:['Наушники Sony','Книга «Атомные привычки»'], color:'#6E8F74'},
@@ -52,7 +49,6 @@ function seedState(){
 
 let state = seedState();
 
-// data.js
 
 async function loadState() {
   try {
