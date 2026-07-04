@@ -1,7 +1,7 @@
 {
   "name": "birthday-chat-server",
   "version": "1.0.0",
-  "description": "Локальный сервер для чата в реальном времени (усложнение: real-time chat)",
+  "description": "Локальный сервер для чата в реальном времени + SQLite для пользователей и чатов",
   "type": "module",
   "main": "server.js",
   "scripts": {
@@ -9,6 +9,8 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "nanoid": "^5.0.7",

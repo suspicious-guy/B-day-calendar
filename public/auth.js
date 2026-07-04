@@ -1,36 +1,21 @@
-/*Auth*/
-const USERS_KEY = 'birthday-app-users-v1';
+/*Auth — теперь через сервер + SQLite, а не через window.storage*/
 const SESSION_KEY = 'birthday-app-session-v1';
+const SERVER_URL = window.location.origin;
 
 let authMode = 'login';
-let users = {};
 
-async function loadUsers(){
+function getSession(){
   try{
-    const res = await window.storage.get(USERS_KEY);
-    if(res && res.value) users = JSON.parse(res.value);
+    return localStorage.getItem(SESSION_KEY) || null;
   }catch(e){
-    users = {};
+    return null;
   }
 }
 
-async function saveUsers(){
+function setSession(login){
   try{
-    await window.storage.set(USERS_KEY, JSON.stringify(users));
-  }catch(e){ /* ignore */ }
-}
-
-async function getSession(){
-  try{
-    const res = await window.storage.get(SESSION_KEY);
-    if(res && res.value) return res.value;
-  }catch(e){ /* no session yet */ }
-  return null;
-}
-
-async function setSession(login){
-  try{
-    await window.storage.set(SESSION_KEY, login || '');
+    if(login) localStorage.setItem(SESSION_KEY, login);
+    else localStorage.removeItem(SESSION_KEY);
   }catch(e){ /* ignore */ }
 }
 
@@ -113,12 +98,26 @@ async function handleAuthSubmit(){
   const password = passInp.value;
 
   if(authMode === 'login'){
-    if(!login || !password || !users[login] || users[login].password !== password){
-      error.textContent = 'Неправильный логин или пароль';
+    if(!login || !password){
+      error.textContent = 'Заполните все поля';
       return;
     }
-    await setSession(login);
-    await enterApp(login);
+    try{
+      const res = await fetch(`${SERVER_URL}/api/login`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username: login, password })
+      });
+      if(!res.ok){
+        error.textContent = 'Неправильный логин или пароль';
+        return;
+      }
+      const user = await res.json();
+      setSession(login);
+      await enterApp(login, user);
+    }catch(e){
+      error.textContent = 'Не удалось связаться с сервером';
+    }
   } else {
     const nameInp = document.getElementById('authName');
     const dateInp = document.getElementById('authBirthdate');
@@ -129,21 +128,33 @@ async function handleAuthSubmit(){
       error.textContent = 'Заполните все поля';
       return;
     }
-    if(users[login]){
-      error.textContent = 'Такой логин уже занят';
-      return;
+
+    try{
+      const res = await fetch(`${SERVER_URL}/api/register`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username: login, name, password, birthdate })
+      });
+      if(res.status === 409){
+        error.textContent = 'Такой логин уже занят';
+        return;
+      }
+      if(!res.ok){
+        error.textContent = 'Не удалось зарегистрироваться';
+        return;
+      }
+      const user = await res.json();
+      setSession(login);
+      await enterApp(login, user);
+    }catch(e){
+      error.textContent = 'Не удалось связаться с сервером';
     }
-    users[login] = {name, password, birthdate};
-    await saveUsers();
-    await setSession(login);
-    await enterApp(login);
   }
 }
 
-async function enterApp(login){
-  const u = users[login];
-  state.user.name = u.name;
-  state.user.birthdate = u.birthdate;
+async function enterApp(login, user){
+  state.user.name = user.name;
+  state.user.birthdate = user.birthdate;
   state.currentLogin = login;
   await persist();
   hideAuthOverlay();
@@ -153,20 +164,27 @@ async function enterApp(login){
 }
 
 async function logout(){
-  await setSession(null);
+  setSession(null);
   state.currentLogin = null;
   showAuthOverlay('login');
 }
 
 async function initAuth(){
   document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
-  await loadUsers();
-  const session = await getSession();
+  const session = getSession();
 
-  if(session && users[session]){
-    await loadState();
-    await enterApp(session);
-  } else {
-    showAuthOverlay('login');
+  if(session){
+    try{
+      const res = await fetch(`${SERVER_URL}/api/users/${encodeURIComponent(session)}`);
+      if(res.ok){
+        const user = await res.json();
+        await loadState();
+        await enterApp(session, user);
+        return;
+      }
+    }catch(e){ /* сервер недоступен — уходим на форму логина */ }
+    // сессия есть, но пользователь на сервере не найден (например, БД была очищена)
+    setSession(null);
   }
+  showAuthOverlay('login');
 }
