@@ -753,7 +753,6 @@ function renderNotifications(){
           <div class="notif-text">${n.text}</div>
           <span class="notif-tag ${n.type}">${labels[n.type]}</span>
         </div>
-        <button class="btn btn-ghost btn-small" data-action="mark-read" data-id="${n.id}">Отметить прочитанным</button>
         <div class="notif-received">${formatReceivedAt(n.receivedAt)}</div>
       </div>
     </div>
