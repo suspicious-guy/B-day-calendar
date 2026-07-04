@@ -16,6 +16,7 @@ function seedState(){
     friendSearch: '',
     searchQuery: '',        
     friendSubTab: 'my', 
+    isAdmin: false,
     user: {
       id: 'current-user',
       name: '',          
@@ -63,6 +64,9 @@ async function loadState() {
         parsed.activeFriendId = null;
       }
       state = Object.assign(seedState(), parsed);
+      if (parsed.user) {
+        state.user.isAdmin = parsed.user.isAdmin === true;
+      }
     }
   } catch (e) {
     // нет сохранённых данных - используем seed
