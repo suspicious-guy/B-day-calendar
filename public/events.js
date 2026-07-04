@@ -87,14 +87,6 @@ document.getElementById('content').addEventListener('click', async e => { // Ð´Ð
       renderContent(true);
     }
   } 
-  else if (action === 'discuss-gift') {
-    openOrCreateChatForFriend(el.dataset.id);
-  } 
-  else if (action === 'filter-alpha') {
-    state.friendFilter = 'alpha';
-    persist();
-    renderContent(true);
-  }
   else if (action === 'filter-alpha') {
     state.friendFilter = 'alpha';
     persist();
