@@ -224,7 +224,7 @@ nav.tabs{display:flex;flex-direction:column;gap:8px;flex:1;}
 }
 .filter-toggle button.active{background:var(--ink);color:var(--cream-text);}
 
-.friends-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;}
+.friends-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px;}
 .friend-card{background:#fff;border-radius:var(--radius);border:1px solid var(--line);box-shadow:0 2px 10px rgba(22,33,61,0.05);overflow:hidden;display:flex;flex-direction:column;}
 .fc-top{display:flex;gap:14px;padding:18px 18px 14px;align-items:flex-start;}
 .date-block{
