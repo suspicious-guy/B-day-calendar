@@ -492,7 +492,11 @@ function renderFriends() {
               <div class="dmon">${mon}</div>
             </div>
             <div class="fc-info">
-              <div class="fname">${escapeHtml(f.name)}</div>
+              <div class="fname-row">
+                <div class="fname">${escapeHtml(f.name)}</div>
+                <button class="btn-gcal-small" type="button" title="Добавить в Google Календарь"
+                        data-gcal-name="${escapeHtml(f.name)}" data-gcal-birthdate="${f.birthdate}">📅</button>
+              </div>
               <div class="fcountdown">${countdownLabel(days)}</div>
               <div class="fc-groups">${f.groups.map(g => `<span>${escapeHtml(g)}</span>`).join('')}</div>
               ${chatExists ? '<div class="chat-indicator">💬 Обсуждение активно</div>' : ''}
@@ -1134,6 +1138,10 @@ function renderFriendProfileModal(friendId) {
             ${friend.groups.map(g => `<span class="group-tag">${escapeHtml(g)}</span>`).join('')}
           </div>
         </div>
+        <button class="btn-gcal-modal" type="button" title="Добавить в Google Календарь"
+                data-gcal-name="${escapeHtml(friend.name)}" data-gcal-birthdate="${friend.birthdate}">
+          📅 В календарь
+        </button>
       </div>
       
       <div class="modal-friend-actions">
